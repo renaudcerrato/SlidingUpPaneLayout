@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="SlidingUpPaneLayout">
+        <attr name="supl_contentScrim" format="color|reference"/>
+        <attr name="supl_shadow" format="reference"/>
+        <attr name="supl_anchor" format="float|reference"/>
+    </declare-styleable>
+
+</resources>
