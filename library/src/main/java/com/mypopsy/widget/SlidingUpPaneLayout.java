@@ -638,7 +638,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
 
     @Override
     protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
-        if(DEBUG) Log.d(TAG, "-----drawChild()");
+        if(DEBUG) Log.d(TAG, "-----drawChild("+(child == mSlideableView)+")");
 
         if (mSlideableView == null || mSlideableView == child)
             return super.drawChild(canvas, child, drawingTime);
@@ -869,6 +869,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
         } else {
             vis = VISIBLE;
         }
+        if(DEBUG) Log.d(TAG, "-----updateObscuredViewVisibility("+(child==mSlideableView)+","+(vis == VISIBLE ? "VISIBLE" : "INVISIBLE")+")");
         child.setVisibility(vis);
     }
 
