@@ -166,8 +166,24 @@ public class SlidingUpPaneLayout extends ViewGroup {
         return mState;
     }
 
-    @SuppressWarnings("ConstantConditions")
+    public boolean isExpanded() {
+        return mState == State.EXPANDED;
+    }
+
+    public boolean isCollapsed() {
+        return mState == State.COLLAPSED;
+    }
+
+    public boolean isAnchored() {
+        return mState == State.ANCHORED;
+    }
+
     public void setState(@NonNull State state) {
+        setState(state, true);
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    public void setState(@NonNull State state, boolean animate) {
         if (state == null || state == State.DRAGGING)
             throw new IllegalArgumentException("state cannot be "+state);
 
@@ -180,13 +196,13 @@ public class SlidingUpPaneLayout extends ViewGroup {
         } else {
             switch (state) {
                 case ANCHORED:
-                    smoothSlideTo(mAnchorPoint);
+                    settleTo(mAnchorPoint, animate);
                     break;
                 case COLLAPSED:
-                    smoothSlideTo(0);
+                    settleTo(0, animate);
                     break;
                 case EXPANDED:
-                    smoothSlideTo(1.0f);
+                    settleTo(1.0f, animate);
                     break;
             }
         }
@@ -357,7 +373,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
 
         if (getChildCount() > 2) {
             throw new IllegalStateException(
-                    getClass().getSimpleName() + " only supports 2 child view");
+                    getClass().getSimpleName() + " only supports 2 children");
         }
 
         final boolean measureMatchParentChildren =
@@ -463,7 +479,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
                     mSlideOffset = 0.f;
                     break;
             }
-            setScrimAlpha((int) (mSlideOffset*255f));
+            settleTo(mSlideOffset, false);
         }
 
         layoutChildren(l, t, r, b);
@@ -587,15 +603,42 @@ public class SlidingUpPaneLayout extends ViewGroup {
         mState = ss.state != null ? ss.state : State.COLLAPSED;
     }
 
-    private boolean smoothSlideTo(float slideOffset) {
-        if (!isEnabled() || mSlideableView == null) return false;
-        int targetTop = computePanelTopPosition(slideOffset);
-        if (mDragHelper.smoothSlideViewTo(mSlideableView, mSlideableView.getLeft(), targetTop)) {
-            setAllChildrenVisible();
-            ViewCompat.postInvalidateOnAnimation(this);
-            return true;
+    private boolean settleTo(float slideOffset, boolean animate) {
+
+        if(animate) {
+            if (mSlideableView != null) {
+                int targetTop = computePanelTopPosition(slideOffset);
+                if (mDragHelper.smoothSlideViewTo(mSlideableView, mSlideableView.getLeft(), targetTop)) {
+                    setAllChildrenVisible();
+                    ViewCompat.postInvalidateOnAnimation(this);
+                    return true;
+                }
+            }
+            return false;
         }
-        return false;
+
+        mSlideOffset = slideOffset;
+
+        if (mSlideOffset == 1) {
+            if (mState != State.EXPANDED) {
+                updateObscuredViewVisibility();
+                mState = State.EXPANDED;
+                dispatchOnPanelExpanded(mSlideableView);
+            }
+        } else if (mSlideOffset == 0) {
+            if (mState != State.COLLAPSED) {
+                mState = State.COLLAPSED;
+                dispatchOnPanelCollapsed(mSlideableView);
+            }
+        } else if (mState != State.ANCHORED) {
+            updateObscuredViewVisibility();
+            mState = State.ANCHORED;
+            dispatchOnPanelAnchored(mSlideableView);
+        }
+
+        setScrimAlpha((int) (mSlideOffset*255f));
+        invalidate();
+        return true;
     }
 
     /*
@@ -724,30 +767,14 @@ public class SlidingUpPaneLayout extends ViewGroup {
 
         @Override
         public void onViewDragStateChanged(int state) {
-            if (mDragHelper.getViewDragState() != ViewDragHelper.STATE_IDLE) return;
+            if (state != ViewDragHelper.STATE_IDLE) return;
 
             if(mSlideableView == null)
                 mSlideOffset = 0;
             else
                 mSlideOffset = computeSlideOffset(mSlideableView.getTop());
 
-            if (mSlideOffset == 1) {
-                if (mState != State.EXPANDED) {
-                    updateObscuredViewVisibility();
-                    mState = State.EXPANDED;
-                    dispatchOnPanelExpanded(mSlideableView);
-                }
-            } else if (mSlideOffset == 0) {
-                if (mState != State.COLLAPSED) {
-                    mState = State.COLLAPSED;
-                    dispatchOnPanelCollapsed(mSlideableView);
-                }
-            } else if (mState != State.ANCHORED) {
-                updateObscuredViewVisibility();
-                mState = State.ANCHORED;
-                dispatchOnPanelAnchored(mSlideableView);
-            }
-            setScrimAlpha((int) (mSlideOffset*255f));
+            settleTo(mSlideOffset, false);
         }
 
         @Override
@@ -757,6 +784,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
 
         @Override
         public void onViewPositionChanged(View changedView, int left, int top, int dx, int dy) {
+            mState = State.DRAGGING;
             mSlideOffset = computeSlideOffset(top);
             setScrimAlpha((int) (mSlideOffset*255f));
             dispatchOnPanelSlide(mSlideableView);
