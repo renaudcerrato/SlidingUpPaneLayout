@@ -72,7 +72,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
      * Listener for monitoring events about the sliding panel.
      */
     public interface PanelSlideListener {
-        void onPanelSlide(View panel, float slideOffset);
+        void onPanelSlide(View panel, float slideOffset, int slidePixels);
         void onPanelCollapsed(View panel);
         void onPanelExpanded(View panel);
         void onPanelAnchored(View panel);
@@ -81,7 +81,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
 
     static public class SimplePanelSlideListener implements PanelSlideListener {
         @Override
-        public void onPanelSlide(View panel, float slideOffset) {}
+        public void onPanelSlide(View panel, float slideOffset, int slidePixels) {}
         @Override
         public void onPanelCollapsed(View panel) {}
         @Override
@@ -178,6 +178,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
         applyXmlAttributes(attrs, defStyleAttr);
     }
 
+    @SuppressWarnings("ResourceType")
     private void applyXmlAttributes(AttributeSet attrs, int defStyleAttr) {
         TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.SlidingUpPaneLayout, defStyleAttr, 0);
         setAnchorPoint(a.getFloat(R.styleable.SlidingUpPaneLayout_supl_anchor, DEFAULT_ANCHOR_POINT));
@@ -747,7 +748,8 @@ public class SlidingUpPaneLayout extends ViewGroup {
     }
 
     private void dispatchOnPanelSlide(View panel) {
-        for(PanelSlideListener listener: mListeners) listener.onPanelSlide(panel, mSlideOffset);
+        for(PanelSlideListener listener: mListeners)
+            listener.onPanelSlide(panel, mSlideOffset, (int) (mSlideOffset*mSlideRange + .5f));
     }
 
     private void dispatchOnPanelExpanded(View panel) {
