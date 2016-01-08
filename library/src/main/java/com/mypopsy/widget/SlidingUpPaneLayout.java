@@ -224,12 +224,16 @@ public class SlidingUpPaneLayout extends ViewGroup {
         return mState == State.EXPANDED;
     }
 
+    public boolean isVisible() {
+        return !isHidden();
+    }
+
     public boolean isHidden() {
-        return mState == State.HIDDEN;
+        return mState == State.HIDDEN || (mState == State.COLLAPSED && mVisibleOffset <= 0);
     }
 
     public boolean isCollapsed() {
-        return mState == State.COLLAPSED;
+        return mState == State.COLLAPSED || (mState == State.HIDDEN && mVisibleOffset <= 0);
     }
 
     public boolean isAnchored() {
@@ -347,7 +351,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
             }
             case MotionEvent.ACTION_UP: {
                 // close on tap outside
-                if (mState != State.COLLAPSED) {
+                if (isVisible()) {
                     final float dx = x - mInitialMotionX;
                     final float dy = y - mInitialMotionY;
                     final int slop = mDragHelper.getTouchSlop();
@@ -711,15 +715,15 @@ public class SlidingUpPaneLayout extends ViewGroup {
                 mState = State.EXPANDED;
                 dispatchOnPanelExpanded(mSlideableView);
             }
-        } else if (mSlideOffset == 0) {
+        }else if (mSlideOffset < 0 || (mSlideOffset == 0 && mVisibleOffset <= 0)) {
+            mState = State.HIDDEN;
+            if(mSlideableView != null) mSlideableView.setVisibility(View.INVISIBLE);
+            dispatchOnPanelHidden(mSlideableView);
+        }else if (mSlideOffset == 0) {
             if (mState != State.COLLAPSED) {
                 mState = State.COLLAPSED;
                 dispatchOnPanelCollapsed(mSlideableView);
             }
-        }else if (mSlideOffset < 0) {
-            mState = State.HIDDEN;
-            if(mSlideableView != null) mSlideableView.setVisibility(View.INVISIBLE);
-            dispatchOnPanelHidden(mSlideableView);
         }else if (mState != State.ANCHORED) {
             updateObscuredViewVisibility();
             mState = State.ANCHORED;
