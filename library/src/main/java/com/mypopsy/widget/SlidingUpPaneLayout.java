@@ -630,6 +630,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
         } else {
             ss.state = State.COLLAPSED;
         }
+        ss.visibleOffset = mVisibleOffset;
         return ss;
     }
 
@@ -638,6 +639,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
         SavedState ss = (SavedState) state;
         super.onRestoreInstanceState(ss.getSuperState());
         mState = ss.state != null ? ss.state : State.COLLAPSED;
+        mVisibleOffset = ss.visibleOffset;
     }
 
     private boolean settleTo(float slideOffset, boolean animate) {
@@ -877,6 +879,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
 
     static class SavedState extends BaseSavedState {
         State state;
+        int visibleOffset;
 
         SavedState(Parcelable superState) {
             super(superState);
@@ -885,12 +888,14 @@ public class SlidingUpPaneLayout extends ViewGroup {
         private SavedState(Parcel in) {
             super(in);
             state = (State) in.readSerializable();
+            visibleOffset = in.readInt();
         }
 
         @Override
         public void writeToParcel(Parcel out, int flags) {
             super.writeToParcel(out, flags);
             out.writeSerializable(state == null ? null : state.toString());
+            out.writeInt(visibleOffset);
         }
 
         public static final Parcelable.Creator<SavedState> CREATOR =
