@@ -638,6 +638,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
 
     @Override
     protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
+        if(DEBUG) Log.d(TAG, "-----drawChild()");
 
         if (mSlideableView == null || mSlideableView == child)
             return super.drawChild(canvas, child, drawingTime);
