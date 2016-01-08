@@ -606,13 +606,15 @@ public class SlidingUpPaneLayout extends ViewGroup {
     @Override
     public void draw(Canvas canvas) {
         super.draw(canvas);
-        if (mShadowDrawable != null && mSlideableView != null && mSlideOffset < 1) {
-            if(mSlideOffset != 0 || mVisibleOffset != 0) {
-                final int shadowHeight = mShadowDrawable.getIntrinsicHeight();
+        if (mShadowDrawable != null && mSlideableView != null) {
+
+            final int shadowHeight = mShadowDrawable.getIntrinsicHeight();
+            final int top = mSlideableView.getTop() - shadowHeight;
+            final int bottom = mSlideableView.getTop();
+
+            if(bottom < getTop() || mSlideableView.getTop() < getBottom()) {
                 final int left = mSlideableView.getLeft();
-                final int top = mSlideableView.getTop() - shadowHeight;
                 final int right = mSlideableView.getRight();
-                final int bottom = mSlideableView.getTop();
                 mShadowDrawable.setBounds(left, top, right, bottom);
                 mShadowDrawable.draw(canvas);
             }
