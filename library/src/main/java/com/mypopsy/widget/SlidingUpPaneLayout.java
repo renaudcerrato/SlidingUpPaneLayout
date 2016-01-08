@@ -259,7 +259,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
 
     @SuppressWarnings("ConstantConditions")
     public void setState(@NonNull State state, boolean animate) {
-        if(DEBUG) Log.d(TAG, "-----setState("+state+",animate="+animate);
+        if(DEBUG) Log.d(TAG, "-----setState("+state+",animate="+animate+")");
 
         if (state == null || state == State.DRAGGING)
             throw new IllegalArgumentException("state cannot be "+state);
@@ -535,11 +535,9 @@ public class SlidingUpPaneLayout extends ViewGroup {
                 }
 
                 if(DEBUG) {
-                    final int w = MeasureSpec.getSize(childWidthMeasureSpec);
-                    final int h = MeasureSpec.getSize(childHeightMeasureSpec);
-                    final String ws = MeasureSpec.toString(MeasureSpec.getMode(childWidthMeasureSpec));
-                    final String hs = MeasureSpec.toString(MeasureSpec.getMode(childHeightMeasureSpec));
-                    Log.d(TAG, "child.measure("+w+"x"+h+";"+ws+","+hs+")");
+                    final String w = MeasureSpec.toString(childWidthMeasureSpec);
+                    final String h = MeasureSpec.toString(childHeightMeasureSpec);
+                    Log.d(TAG, "child.measure("+i+", "+w+","+h+")");
                 }
 
                 child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
@@ -713,7 +711,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
     }
 
     private boolean settleTo(float slideOffset, boolean animate) {
-        if(DEBUG) Log.d(TAG, "-----settleTo("+slideOffset+", animate="+animate);
+        if(DEBUG) Log.d(TAG, "-----settleTo("+slideOffset+", animate="+animate+")");
 
         if(animate) {
             if (mSlideableView != null) {
