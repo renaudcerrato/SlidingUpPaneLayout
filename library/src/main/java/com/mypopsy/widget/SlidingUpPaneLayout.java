@@ -706,7 +706,6 @@ public class SlidingUpPaneLayout extends ViewGroup {
                     return true;
                 }
             }
-            return false;
         }
 
         mSlideOffset = slideOffset;
@@ -715,21 +714,21 @@ public class SlidingUpPaneLayout extends ViewGroup {
             if (mState != State.EXPANDED) {
                 updateObscuredViewVisibility();
                 mState = State.EXPANDED;
-                dispatchOnPanelExpanded(mSlideableView);
+                dispatchOnPanelExpanded();
             }
         }else if (mSlideOffset < 0 || (mSlideOffset == 0 && mVisibleOffset <= 0)) {
             mState = State.HIDDEN;
             if(mSlideableView != null) mSlideableView.setVisibility(View.INVISIBLE);
-            dispatchOnPanelHidden(mSlideableView);
+            dispatchOnPanelHidden();
         }else if (mSlideOffset == 0) {
             if (mState != State.COLLAPSED) {
                 mState = State.COLLAPSED;
-                dispatchOnPanelCollapsed(mSlideableView);
+                dispatchOnPanelCollapsed();
             }
         }else if (mState != State.ANCHORED) {
             updateObscuredViewVisibility();
             mState = State.ANCHORED;
-            dispatchOnPanelAnchored(mSlideableView);
+            dispatchOnPanelAnchored();
         }
 
         setScrimAlpha((int) (mSlideOffset*255f));
@@ -758,23 +757,27 @@ public class SlidingUpPaneLayout extends ViewGroup {
             listener.onPanelSlide(panel, mSlideOffset, (int) (mSlideOffset*mSlideRange + .5f));
     }
 
-    private void dispatchOnPanelExpanded(View panel) {
-        for(PanelSlideListener listener: mListeners) listener.onPanelExpanded(panel);
+    private void dispatchOnPanelExpanded() {
+        if(mSlideableView == null) return;
+        for(PanelSlideListener listener: mListeners) listener.onPanelExpanded(mSlideableView);
         sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
     }
 
-    private void dispatchOnPanelCollapsed(View panel) {
-        for(PanelSlideListener listener: mListeners) listener.onPanelCollapsed(panel);
+    private void dispatchOnPanelCollapsed() {
+        if(mSlideableView == null) return;
+        for(PanelSlideListener listener: mListeners) listener.onPanelCollapsed(mSlideableView);
         sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
     }
 
-    private void dispatchOnPanelAnchored(View panel) {
-        for(PanelSlideListener listener: mListeners) listener.onPanelAnchored(panel);
+    private void dispatchOnPanelAnchored() {
+        if(mSlideableView == null) return;
+        for(PanelSlideListener listener: mListeners) listener.onPanelAnchored(mSlideableView);
         sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
     }
 
-    private void dispatchOnPanelHidden(View panel) {
-        for(PanelSlideListener listener: mListeners) listener.onPanelHidden(panel);
+    private void dispatchOnPanelHidden() {
+        if(mSlideableView == null) return;
+        for(PanelSlideListener listener: mListeners) listener.onPanelHidden(mSlideableView);
         sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
     }
 
