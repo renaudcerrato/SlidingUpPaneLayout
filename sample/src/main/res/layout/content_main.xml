@@ -17,19 +17,25 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="onExpand"
+        android:onClick="onExpandClick"
         android:text="Expand"/>
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="onAnchor"
+        android:onClick="onAnchorClick"
         android:text="Anchor"/>
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="onCollapse"
+        android:onClick="onCollapseClick"
         android:text="Collapse"/>
-    
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onHideClick"
+        android:text="Hide"/>
+
 </LinearLayout>

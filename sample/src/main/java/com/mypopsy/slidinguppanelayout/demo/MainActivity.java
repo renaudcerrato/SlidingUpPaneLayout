@@ -3,10 +3,12 @@ package com.mypopsy.slidinguppanelayout.demo;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -20,8 +22,8 @@ import butterknife.ButterKnife;
 import static com.mypopsy.widget.SlidingUpPaneLayout.State.ANCHORED;
 import static com.mypopsy.widget.SlidingUpPaneLayout.State.COLLAPSED;
 import static com.mypopsy.widget.SlidingUpPaneLayout.State.EXPANDED;
+import static com.mypopsy.widget.SlidingUpPaneLayout.State.HIDDEN;
 
-//import com.mypopsy.slidinguppanelayout.demo.BuildConfig;
 public class MainActivity extends AppCompatActivity {
 
     @Bind(R.id.root)
@@ -33,6 +35,9 @@ public class MainActivity extends AppCompatActivity {
     @Bind(R.id.tabs)
     TabLayout mTabLayout;
 
+    @Bind(R.id.fab)
+    FloatingActionButton mFab;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,22 +48,57 @@ public class MainActivity extends AppCompatActivity {
 
         mViewPager.setAdapter(new FragmentAdapter(getSupportFragmentManager()));
         mTabLayout.setupWithViewPager(mViewPager);
+        mTabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                mViewPager.setCurrentItem(tab.getPosition());
+                onTabReselected(tab);
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+                if (mSlidingUpPaneLayout.isCollapsed()) mSlidingUpPaneLayout.setState(ANCHORED);
+            }
+        });
+
+        mSlidingUpPaneLayout.addPaneListener(new SlidingUpPaneLayout.SimplePanelSlideListener() {
+            @Override
+            public void onPanelSlide(View panel, float slideOffset, int slidePixels) {
+                float visibleOffset = mSlidingUpPaneLayout.getVisibleOffset();
+                float y =  -(slidePixels + visibleOffset);
+                if(slideOffset <= 0) ViewCompat.setTranslationY(mFab, y);
+            }
+
+            @Override
+            public void onPanelHidden(View panel) {
+                mFab.animate().translationY(0).start();
+            }
+        });
     }
 
     public void onFabClick(View v) {
         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.PROJECT_URL)));
     }
 
-    public void onExpand(View v) {
+    public void onExpandClick(View v) {
         mSlidingUpPaneLayout.setState(EXPANDED);
     }
 
-    public void onAnchor(View v) {
+    public void onAnchorClick(View v) {
         mSlidingUpPaneLayout.setState(ANCHORED);
     }
 
-    public void onCollapse(View v) {
+    public void onCollapseClick(View v) {
         mSlidingUpPaneLayout.setState(COLLAPSED);
+    }
+
+    public void onHideClick(View v) {
+        mSlidingUpPaneLayout.setState(HIDDEN);
     }
 
     private class FragmentAdapter extends FragmentStatePagerAdapter {

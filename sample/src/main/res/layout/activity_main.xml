@@ -6,9 +6,11 @@
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:supl_anchor="0.333"
+    app:supl_anchor="0.5"
     app:supl_contentScrim="#a0000000"
     app:supl_shadow="@drawable/shadow"
+    app:supl_initialState="hidden"
+    app:supl_visibleOffset="?attr/actionBarSize"
     tools:context=".MainActivity">
 
     <include layout="@layout/activity_main_content"/>
