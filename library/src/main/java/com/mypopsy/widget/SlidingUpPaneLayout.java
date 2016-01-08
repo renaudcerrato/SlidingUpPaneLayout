@@ -88,6 +88,11 @@ public class SlidingUpPaneLayout extends ViewGroup {
     private float mSlideOffset;
 
     /**
+     * How far the panel is visible when collapsed.
+     */
+    private int mVisibleOffset;
+
+    /**
      * How far in pixels the slideable panel may move.
      */
     private int mSlideRange;
@@ -161,6 +166,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
         setAnchorPoint(a.getFloat(R.styleable.SlidingUpPaneLayout_supl_anchor, DEFAULT_ANCHOR_POINT));
         setContentScrim(a.getDrawable(R.styleable.SlidingUpPaneLayout_supl_contentScrim));
         setShadowDrawable(a.getDrawable(R.styleable.SlidingUpPaneLayout_supl_shadow));
+        mVisibleOffset = a.getDimensionPixelSize(R.styleable.SlidingUpPaneLayout_supl_visibleOffset, 0);
         a.recycle();
     }
 
@@ -182,6 +188,17 @@ public class SlidingUpPaneLayout extends ViewGroup {
 
     public float getSlideOffset() {
         return mSlideOffset;
+    }
+
+    public float getVisibleOffset() {
+        return mVisibleOffset;
+    }
+
+    public void setVisibleOffset(int visibleOffset) {
+        if(mVisibleOffset != visibleOffset) {
+            mVisibleOffset = visibleOffset;
+            requestLayout();
+        }
     }
 
     public boolean isExpanded() {
@@ -475,7 +492,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
 
         if(getChildCount() == 2) {
             mSlideableView = getChildAt(1);
-            mSlideRange = mSlideableView.getMeasuredHeight();
+            mSlideRange = mSlideableView.getMeasuredHeight() - mVisibleOffset;
         }else {
             mSlideableView = null;
             mSlideRange = 0;
@@ -538,14 +555,16 @@ public class SlidingUpPaneLayout extends ViewGroup {
     @Override
     public void draw(Canvas canvas) {
         super.draw(canvas);
-        if (mShadowDrawable != null && mSlideOffset > 0 && mSlideOffset < 1 && mSlideableView != null) {
-            final int shadowHeight = mShadowDrawable.getIntrinsicHeight();
-            final int left = mSlideableView.getLeft();
-            final int top = mSlideableView.getTop() - shadowHeight;
-            final int right = mSlideableView.getRight();
-            final int bottom = mSlideableView.getTop();
-            mShadowDrawable.setBounds(left, top, right, bottom);
-            mShadowDrawable.draw(canvas);
+        if (mShadowDrawable != null && mSlideableView != null && mSlideOffset < 1) {
+            if(mSlideOffset != 0 || mVisibleOffset != 0) {
+                final int shadowHeight = mShadowDrawable.getIntrinsicHeight();
+                final int left = mSlideableView.getLeft();
+                final int top = mSlideableView.getTop() - shadowHeight;
+                final int right = mSlideableView.getRight();
+                final int bottom = mSlideableView.getTop();
+                mShadowDrawable.setBounds(left, top, right, bottom);
+                mShadowDrawable.draw(canvas);
+            }
         }
     }
 
@@ -664,7 +683,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
      */
     private int computePanelTopPosition(float slideOffset) {
         int slidePixelOffset = (int) (slideOffset * mSlideRange);
-        return getMeasuredHeight() - getPaddingBottom() - slidePixelOffset;
+        return getMeasuredHeight() - getPaddingBottom() - mVisibleOffset - slidePixelOffset;
     }
 
     /*

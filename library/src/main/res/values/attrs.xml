@@ -5,6 +5,7 @@
         <attr name="supl_contentScrim" format="color|reference"/>
         <attr name="supl_shadow" format="reference"/>
         <attr name="supl_anchor" format="float|reference"/>
+        <attr name="supl_visibleOffset" format="dimension|reference"/>
     </declare-styleable>
 
 </resources>
