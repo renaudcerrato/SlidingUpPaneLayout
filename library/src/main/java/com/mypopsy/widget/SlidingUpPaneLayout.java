@@ -12,7 +12,6 @@ import android.os.Parcelable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.IntDef;
-import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.MotionEventCompat;
@@ -326,11 +325,23 @@ public class SlidingUpPaneLayout extends ViewGroup {
         }
     }
 
-    private void setScrimAlpha(@IntRange(from = 0, to = 255) int alpha) {
+    private void updateScrimAlpha() {
+        int alpha = (int)(mSlideOffset * 255f + .5f);
         if (alpha != mScrimAlpha) {
             mScrimAlpha = Math.min(255, Math.max(0, alpha));
             ViewCompat.postInvalidateOnAnimation(this);
         }
+    }
+
+    @Override
+    public void addView(View child, int index, ViewGroup.LayoutParams params) {
+        super.addView(child, index, params);
+        if(getChildCount() == 2) mFirstLayout = true;
+    }
+
+    @Nullable
+    public View getSlidingPanel() {
+        return mSlideableView;
     }
 
     @Override
@@ -435,7 +446,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
 
     @Override
     protected ViewGroup.LayoutParams generateDefaultLayoutParams() {
-        return new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        return new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
     }
 
     @Override
@@ -579,13 +590,13 @@ public class SlidingUpPaneLayout extends ViewGroup {
                     mSlideOffset = 0.f;
                     break;
             }
-            settleTo(mSlideOffset, false);
         }
 
         layoutChildren(l, t, r, b);
 
         if(mFirstLayout) {
             updateObscuredViewVisibility();
+            updateScrimAlpha();
             mFirstLayout = false;
         }
 
@@ -609,8 +620,9 @@ public class SlidingUpPaneLayout extends ViewGroup {
                 int childLeft = parentLeft + lp.leftMargin;
                 int childTop = parentTop + lp.topMargin;
 
-                if (child == mSlideableView)
+                if (child == mSlideableView) {
                     childTop += computePanelTopPosition(mSlideOffset);
+                }
 
                 if(DEBUG) Log.d(TAG, "layoutChildren("+i+",["+childLeft+","+childTop+":"+width+"x"+height+")");
                 child.layout(childLeft, childTop, childLeft + width, childTop + height);
@@ -639,7 +651,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
 
     @Override
     protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
-        if(DEBUG) Log.d(TAG, "-----drawChild("+(child == mSlideableView)+")");
+        if(DEBUG) Log.d(TAG, "-----drawChild("+(child == mSlideableView ? "panel":"main")+")");
 
         if (mSlideableView == null || mSlideableView == child)
             return super.drawChild(canvas, child, drawingTime);
@@ -753,7 +765,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
             dispatchOnPanelAnchored();
         }
 
-        setScrimAlpha((int) (mSlideOffset*255f));
+        updateScrimAlpha();
         invalidate();
         return true;
     }
@@ -874,7 +886,10 @@ public class SlidingUpPaneLayout extends ViewGroup {
         } else {
             vis = VISIBLE;
         }
-        if(DEBUG) Log.d(TAG, "-----updateObscuredViewVisibility("+(child==mSlideableView)+","+(vis == VISIBLE ? "VISIBLE" : "INVISIBLE")+")");
+
+        if(DEBUG) Log.d(TAG, "-----updateObscuredViewVisibility("+(child==mSlideableView ? "panel":"main")+
+                ","+(vis == VISIBLE ? "VISIBLE" : "INVISIBLE")+")");
+
         child.setVisibility(vis);
     }
 
@@ -920,7 +935,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
         public void onViewPositionChanged(View changedView, int left, int top, int dx, int dy) {
             mState = State.DRAGGING;
             mSlideOffset = computeSlideOffset(top);
-            setScrimAlpha((int) (mSlideOffset*255f));
+            updateScrimAlpha();
             dispatchOnPanelSlide();
             invalidate();
         }

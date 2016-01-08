@@ -17,6 +17,12 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:onClick="onAddFragment"
+        android:text="Add Fragment"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:onClick="onExpandClick"
         android:text="Expand"/>
 

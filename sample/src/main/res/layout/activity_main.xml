@@ -14,6 +14,5 @@
     tools:context=".MainActivity">
 
     <include layout="@layout/activity_main_content"/>
-    <include layout="@layout/activity_main_bottom_pane"/>
 
 </com.mypopsy.widget.SlidingUpPaneLayout>
