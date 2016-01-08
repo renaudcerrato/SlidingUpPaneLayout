@@ -32,4 +32,16 @@
         android:onClick="onCollapse"
         android:text="Collapse"/>
 
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onRemoveView"
+        android:text="remove view"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onAddView"
+        android:text="add view"/>
+
 </LinearLayout>

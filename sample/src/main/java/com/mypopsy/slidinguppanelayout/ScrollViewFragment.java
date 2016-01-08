@@ -19,7 +19,16 @@ public class ScrollViewFragment extends BaseFragment<ScrollView> {
     @Override
     protected void populate(ScrollView scrollView) {
         ViewGroup content = ((ViewGroup)scrollView.getChildAt(0));
-        for(int i = 0; i < getItemCount(); i++)
-            content.addView(bindItemView(createItemView(content), i));
+        for(int i = 0; i < getItemCount(); i++) {
+            final int position = i;
+            View view = bindItemView(createItemView(content), i);
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onItemClick(position);
+                }
+            });
+            content.addView(view, i);
+        }
     }
 }

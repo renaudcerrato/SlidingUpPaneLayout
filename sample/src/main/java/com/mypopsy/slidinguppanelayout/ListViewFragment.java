@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 public class ListViewFragment extends BaseFragment<ListView> {
 
@@ -25,7 +24,7 @@ public class ListViewFragment extends BaseFragment<ListView> {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(view.getContext(), "clicked "+position, Toast.LENGTH_SHORT).show();
+                ListViewFragment.this.onItemClick(position);
             }
         });
     }

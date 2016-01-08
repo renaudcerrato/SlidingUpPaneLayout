@@ -166,6 +166,10 @@ public class SlidingUpPaneLayout extends ViewGroup {
         return mState;
     }
 
+    public float getSlideOffset() {
+        return mSlideOffset;
+    }
+
     public boolean isExpanded() {
         return mState == State.EXPANDED;
     }
@@ -208,7 +212,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
         }
     }
 
-    public void setShadowDrawable(Drawable drawable) {
+    public void setShadowDrawable(@Nullable Drawable drawable) {
         if(mShadowDrawable != drawable) {
             mShadowDrawable = drawable;
             setWillNotDraw(mShadowDrawable == null);
@@ -520,7 +524,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
     @Override
     public void draw(Canvas canvas) {
         super.draw(canvas);
-        if (mShadowDrawable != null && mSlideOffset > 0 && mSlideableView != null) {
+        if (mShadowDrawable != null && mSlideOffset > 0 && mSlideOffset < 1 && mSlideableView != null) {
             final int shadowHeight = mShadowDrawable.getIntrinsicHeight();
             final int left = mSlideableView.getLeft();
             final int top = mSlideableView.getTop() - shadowHeight;

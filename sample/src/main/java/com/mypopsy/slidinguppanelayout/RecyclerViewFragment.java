@@ -6,7 +6,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 public class RecyclerViewFragment extends BaseFragment<RecyclerView> {
 
@@ -45,14 +44,14 @@ public class RecyclerViewFragment extends BaseFragment<RecyclerView> {
         }
     }
 
-    static class DummyViewHolder extends RecyclerView.ViewHolder {
+    class DummyViewHolder extends RecyclerView.ViewHolder {
         public DummyViewHolder(View itemView) {
             super(itemView);
             itemView.setOnClickListener(new View.OnClickListener() {
 
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(v.getContext(), "clicked " + getAdapterPosition(), Toast.LENGTH_SHORT).show();
+                    onItemClick(getAdapterPosition());
                 }
             });
         }
