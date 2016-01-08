@@ -616,8 +616,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
                 child.layout(childLeft, childTop, childLeft + width, childTop + height);
             }
         }
-
-        if(mSlideableView != null) mSlideableView.invalidate();
+        if(mSlideableView != null) mSlideableView.postInvalidate();
     }
 
     @Override
@@ -715,6 +714,10 @@ public class SlidingUpPaneLayout extends ViewGroup {
 
     private boolean settleTo(float slideOffset, boolean animate) {
         if(DEBUG) Log.d(TAG, "-----settleTo("+slideOffset+", animate="+animate+")");
+
+        if (mSlideableView != null) {
+            mSlideableView.setVisibility(View.VISIBLE);
+        }
 
         if(animate) {
             if (mSlideableView != null) {
