@@ -64,6 +64,17 @@ public class SlidingUpPaneLayout extends ViewGroup {
         void onPanelAnchored(View panel);
     }
 
+    static public class SimplePanelSlideListener implements PanelSlideListener {
+        @Override
+        public void onPanelSlide(View panel, float slideOffset) {}
+        @Override
+        public void onPanelCollapsed(View panel) {}
+        @Override
+        public void onPanelExpanded(View panel) {}
+        @Override
+        public void onPanelAnchored(View panel) {}
+    }
+
     /**
      * The child view that can slide, if any.
      */
