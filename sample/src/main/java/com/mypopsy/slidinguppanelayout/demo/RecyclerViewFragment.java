@@ -1,4 +1,4 @@
-package com.mypopsy.slidinguppanelayout;
+package com.mypopsy.slidinguppanelayout.demo;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;

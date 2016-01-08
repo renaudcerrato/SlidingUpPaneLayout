@@ -1,4 +1,4 @@
-package com.mypopsy.slidinguppanelayout;
+package com.mypopsy.slidinguppanelayout.demo;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+//import com.mypopsy.slidinguppanelayout.demo.BuildConfig;
 import com.mypopsy.widget.SlidingUpPaneLayout;
 
 import butterknife.Bind;
@@ -22,10 +23,9 @@ import butterknife.ButterKnife;
 import static com.mypopsy.widget.SlidingUpPaneLayout.State.ANCHORED;
 import static com.mypopsy.widget.SlidingUpPaneLayout.State.COLLAPSED;
 import static com.mypopsy.widget.SlidingUpPaneLayout.State.EXPANDED;
-
 public class MainActivity extends AppCompatActivity {
 
-    @Bind(R.id.slidinguplayout)
+    @Bind(R.id.root)
     SlidingUpPaneLayout mSlidingUpPaneLayout;
 
     @Bind(R.id.viewpager)
@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onFabClick(View v) {
-        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.PROJECT_URL)));
+        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(com.mypopsy.slidinguppanelayout.BuildConfig.PROJECT_URL)));
     }
 
     public void onExpand(View v) {
