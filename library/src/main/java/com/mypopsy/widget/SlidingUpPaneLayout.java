@@ -51,7 +51,8 @@ public class SlidingUpPaneLayout extends ViewGroup {
         EXPANDED,
         COLLAPSED,
         ANCHORED,
-        DRAGGING
+        DRAGGING,
+        HIDDEN,
     }
 
     /**
@@ -62,6 +63,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
         void onPanelCollapsed(View panel);
         void onPanelExpanded(View panel);
         void onPanelAnchored(View panel);
+        void onPanelHidden(View panel);
     }
 
     static public class SimplePanelSlideListener implements PanelSlideListener {
@@ -73,6 +75,8 @@ public class SlidingUpPaneLayout extends ViewGroup {
         public void onPanelExpanded(View panel) {}
         @Override
         public void onPanelAnchored(View panel) {}
+        @Override
+        public void onPanelHidden(View panel) {}
     }
 
     /**
@@ -101,7 +105,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
      * Anchor point.
      * range [0, 1] where 0 = closed, 1 = open.
      */
-    private float mAnchorPoint = .5f;
+    private float mAnchorPoint = .333f;
 
     /**
      * True if the main content must be clipped to the top of the slidable view.
@@ -205,6 +209,10 @@ public class SlidingUpPaneLayout extends ViewGroup {
         return mState == State.EXPANDED;
     }
 
+    public boolean isHidden() {
+        return mState == State.HIDDEN;
+    }
+
     public boolean isCollapsed() {
         return mState == State.COLLAPSED;
     }
@@ -238,6 +246,10 @@ public class SlidingUpPaneLayout extends ViewGroup {
                     break;
                 case EXPANDED:
                     settleTo(1.0f, animate);
+                    break;
+                case HIDDEN:
+                    int newTop = computePanelTopPosition(0) + mVisibleOffset;
+                    settleTo(computeSlideOffset(newTop), animate);
                     break;
             }
         }
@@ -282,7 +294,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
 
     private void setScrimAlpha(@IntRange(from = 0, to = 255) int alpha) {
         if (alpha != mScrimAlpha) {
-            mScrimAlpha = alpha;
+            mScrimAlpha = Math.min(255, Math.max(0, alpha));
             ViewCompat.postInvalidateOnAnimation(this);
         }
     }
@@ -493,6 +505,10 @@ public class SlidingUpPaneLayout extends ViewGroup {
         if(getChildCount() == 2) {
             mSlideableView = getChildAt(1);
             mSlideRange = mSlideableView.getMeasuredHeight() - mVisibleOffset;
+            // if the sliding panel is not visible, then force hidden state
+            if (mSlideableView.getVisibility() != VISIBLE) {
+                mState = State.HIDDEN;
+            }
         }else {
             mSlideableView = null;
             mSlideRange = 0;
@@ -509,6 +525,10 @@ public class SlidingUpPaneLayout extends ViewGroup {
                     break;
                 case ANCHORED:
                     mSlideOffset = mAnchorPoint;
+                    break;
+                case HIDDEN:
+                    int newTop = computePanelTopPosition(0) + mVisibleOffset;
+                    mSlideOffset = computeSlideOffset(newTop);
                     break;
                 default:
                     mSlideOffset = 0.f;
@@ -669,7 +689,11 @@ public class SlidingUpPaneLayout extends ViewGroup {
                 mState = State.COLLAPSED;
                 dispatchOnPanelCollapsed(mSlideableView);
             }
-        } else if (mState != State.ANCHORED) {
+        }else if (mSlideOffset < 0) {
+            mState = State.HIDDEN;
+            if(mSlideableView != null) mSlideableView.setVisibility(View.INVISIBLE);
+            dispatchOnPanelHidden(mSlideableView);
+        }else if (mState != State.ANCHORED) {
             updateObscuredViewVisibility();
             mState = State.ANCHORED;
             dispatchOnPanelAnchored(mSlideableView);
@@ -712,6 +736,11 @@ public class SlidingUpPaneLayout extends ViewGroup {
 
     private void dispatchOnPanelAnchored(View panel) {
         for(PanelSlideListener listener: mListeners) listener.onPanelAnchored(panel);
+        sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
+    }
+
+    private void dispatchOnPanelHidden(View panel) {
+        for(PanelSlideListener listener: mListeners) listener.onPanelHidden(panel);
         sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
     }
 
@@ -871,8 +900,8 @@ public class SlidingUpPaneLayout extends ViewGroup {
 
         @Override
         public int clampViewPositionVertical(View child, int top, int dy) {
-            final int collapsedTop = computePanelTopPosition(0.f);
-            final int expandedTop = computePanelTopPosition(1.0f);
+            final int collapsedTop = computePanelTopPosition(0);
+            final int expandedTop = computePanelTopPosition(1);
             return Math.min(Math.max(top, expandedTop), collapsedTop);
         }
     }
