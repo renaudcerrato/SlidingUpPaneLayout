@@ -64,6 +64,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
     /**
      * The child view that can slide, if any.
      */
+    @Nullable
     private View mSlideableView;
 
     /**
@@ -94,10 +95,10 @@ public class SlidingUpPaneLayout extends ViewGroup {
      */
     private boolean mIsUnableToDrag;
 
-
     /**
      * Content scrim.
      */
+    @Nullable
     private Drawable mContentScrim;
 
     /**
@@ -108,6 +109,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
     /**
      * Shadow drawable.
      */
+    @Nullable
     private Drawable mShadowDrawable;
 
 
@@ -302,10 +304,9 @@ public class SlidingUpPaneLayout extends ViewGroup {
                 final int slop = mDragHelper.getTouchSlop();
 
                 if ((ady > slop && adx > ady) ||
-                        (ady > 0 && mState != State.ANCHORED &&
+                        (dy > 0 && mState == State.EXPANDED &&
                                 canScrollVertically(mSlideableView,
-                                        (int) mInitialMotionX, (int) mInitialMotionY,
-                                        dy > 0 ? -1 : +1))) {
+                                        (int) mInitialMotionX, (int) mInitialMotionY, -1))) {
                     mDragHelper.cancel();
                     mIsUnableToDrag = true;
                     return false;
@@ -346,10 +347,15 @@ public class SlidingUpPaneLayout extends ViewGroup {
     }
 
     @Override
+    protected boolean checkLayoutParams(ViewGroup.LayoutParams p) {
+        return p instanceof LayoutParams;
+    }
+
+    @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int count = getChildCount();
 
-        if (getChildCount() != 2) {
+        if (getChildCount() > 2) {
             throw new IllegalStateException(
                     getClass().getSimpleName() + " only supports 2 child view");
         }
@@ -368,7 +374,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
             final View child = getChildAt(i);
             if (child.getVisibility() != GONE) {
                 measureChildWithMargins(child, widthMeasureSpec, 0, heightMeasureSpec, 0);
-                final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+                final MarginLayoutParams lp = (LayoutParams) child.getLayoutParams();
                 maxWidth = Math.max(maxWidth,
                         child.getMeasuredWidth() + lp.leftMargin + lp.rightMargin);
                 maxHeight = Math.max(maxHeight,
@@ -433,8 +439,13 @@ public class SlidingUpPaneLayout extends ViewGroup {
             }
         }
 
-        mSlideableView = getChildAt(1);
-        mSlideRange = mSlideableView.getMeasuredHeight();
+        if(getChildCount() == 2) {
+            mSlideableView = getChildAt(1);
+            mSlideRange = mSlideableView.getMeasuredHeight();
+        }else {
+            mSlideableView = null;
+            mSlideRange = 0;
+        }
     }
 
     @Override
@@ -493,7 +504,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
     @Override
     public void draw(Canvas canvas) {
         super.draw(canvas);
-        if (mShadowDrawable != null && mSlideOffset > 0) {
+        if (mShadowDrawable != null && mSlideOffset > 0 && mSlideableView != null) {
             final int shadowHeight = mShadowDrawable.getIntrinsicHeight();
             final int left = mSlideableView.getLeft();
             final int top = mSlideableView.getTop() - shadowHeight;
@@ -507,7 +518,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
     @Override
     protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
 
-        if (mSlideableView == child)
+        if (mSlideableView == null || mSlideableView == child)
             return super.drawChild(canvas, child, drawingTime);
 
         final boolean shouldClip = mClip;
@@ -713,27 +724,30 @@ public class SlidingUpPaneLayout extends ViewGroup {
 
         @Override
         public void onViewDragStateChanged(int state) {
-            if (mDragHelper.getViewDragState() == ViewDragHelper.STATE_IDLE) {
+            if (mDragHelper.getViewDragState() != ViewDragHelper.STATE_IDLE) return;
+
+            if(mSlideableView == null)
+                mSlideOffset = 0;
+            else
                 mSlideOffset = computeSlideOffset(mSlideableView.getTop());
 
-                if (mSlideOffset == 1) {
-                    if (mState != State.EXPANDED) {
-                        updateObscuredViewVisibility();
-                        mState = State.EXPANDED;
-                        dispatchOnPanelExpanded(mSlideableView);
-                    }
-                } else if (mSlideOffset == 0) {
-                    if (mState != State.COLLAPSED) {
-                        mState = State.COLLAPSED;
-                        dispatchOnPanelCollapsed(mSlideableView);
-                    }
-                } else if (mState != State.ANCHORED) {
+            if (mSlideOffset == 1) {
+                if (mState != State.EXPANDED) {
                     updateObscuredViewVisibility();
-                    mState = State.ANCHORED;
-                    dispatchOnPanelAnchored(mSlideableView);
+                    mState = State.EXPANDED;
+                    dispatchOnPanelExpanded(mSlideableView);
                 }
-                setScrimAlpha((int) (mSlideOffset*255f));
+            } else if (mSlideOffset == 0) {
+                if (mState != State.COLLAPSED) {
+                    mState = State.COLLAPSED;
+                    dispatchOnPanelCollapsed(mSlideableView);
+                }
+            } else if (mState != State.ANCHORED) {
+                updateObscuredViewVisibility();
+                mState = State.ANCHORED;
+                dispatchOnPanelAnchored(mSlideableView);
             }
+            setScrimAlpha((int) (mSlideOffset*255f));
         }
 
         @Override
