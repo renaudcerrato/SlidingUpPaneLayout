@@ -12,10 +12,6 @@
     tools:context=".MainActivity">
 
     <include layout="@layout/activity_main_content"/>
-    <include layout="@layout/activity_main_bottom_pane"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="-64dp"
-        android:layout_marginBottom="-64dp"/>
+    <include layout="@layout/activity_main_bottom_pane"/>
 
 </com.mypopsy.widget.SlidingUpPaneLayout>

@@ -15,7 +15,7 @@ public class ListViewFragment extends BaseFragment<ListView> {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        return inflater.inflate(com.mypopsy.slidinguppanelayout.R.layout.fragment_listview, container, false);
+        return inflater.inflate(R.layout.fragment_listview, container, false);
     }
 
     @Override

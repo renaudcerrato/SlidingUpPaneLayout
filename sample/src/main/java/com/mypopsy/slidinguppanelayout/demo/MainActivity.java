@@ -11,10 +11,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
-//import com.mypopsy.slidinguppanelayout.demo.BuildConfig;
 import com.mypopsy.widget.SlidingUpPaneLayout;
 
 import butterknife.Bind;
@@ -23,6 +20,8 @@ import butterknife.ButterKnife;
 import static com.mypopsy.widget.SlidingUpPaneLayout.State.ANCHORED;
 import static com.mypopsy.widget.SlidingUpPaneLayout.State.COLLAPSED;
 import static com.mypopsy.widget.SlidingUpPaneLayout.State.EXPANDED;
+
+//import com.mypopsy.slidinguppanelayout.demo.BuildConfig;
 public class MainActivity extends AppCompatActivity {
 
     @Bind(R.id.root)
@@ -47,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onFabClick(View v) {
-        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(com.mypopsy.slidinguppanelayout.BuildConfig.PROJECT_URL)));
+        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.PROJECT_URL)));
     }
 
     public void onExpand(View v) {
@@ -61,21 +60,6 @@ public class MainActivity extends AppCompatActivity {
     public void onCollapse(View v) {
         mSlidingUpPaneLayout.setState(COLLAPSED);
     }
-
-    public void onRemoveView(View v) {
-        mSlidingUpPaneLayout.removeViewAt(1);
-    }
-
-    public void onAddView(View v) {
-        FrameLayout fl  = new FrameLayout(this);
-        fl.setLayoutParams(new ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        fl.setId(View.generateViewId());
-        mSlidingUpPaneLayout.addView(fl);
-        getSupportFragmentManager().beginTransaction()
-                .add(fl.getId(), new ListViewFragment())
-                .commit();
-    }
-
 
     private class FragmentAdapter extends FragmentStatePagerAdapter {
 
