@@ -19,6 +19,7 @@ import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ViewDragHelper;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +38,9 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
  */
 public class SlidingUpPaneLayout extends ViewGroup {
 
+    private static final String TAG = SlidingUpPaneLayout.class.getSimpleName();
+    private static final boolean DEBUG = true;
+
     @Retention(SOURCE)
     @IntDef({IntState.EXPANDED, IntState.ANCHORED, IntState.COLLAPSED, IntState.HIDDEN})
     private @interface IntState {
@@ -51,11 +55,8 @@ public class SlidingUpPaneLayout extends ViewGroup {
      */
     private static final int MIN_FLING_VELOCITY = 400; // dips per second
 
-    /**
-     * Drag sensitivity.
-     */
     private static final float DEFAULT_DRAG_SENSITIVITY = 1f;
-    public static final float DEFAULT_ANCHOR_POINT = .333f;
+    private static final float DEFAULT_ANCHOR_POINT = 1f;
 
     /**
      * Current state of the bottom panel.
@@ -118,7 +119,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
      * Anchor point.
      * range [0, 1] where 0 = closed, 1 = open.
      */
-    private float mAnchorPoint = .333f;
+    private float mAnchorPoint = 0;
 
     /**
      * True if the main content must be clipped to the top of the slidable view.
@@ -258,6 +259,8 @@ public class SlidingUpPaneLayout extends ViewGroup {
 
     @SuppressWarnings("ConstantConditions")
     public void setState(@NonNull State state, boolean animate) {
+        if(DEBUG) Log.d(TAG, "-----setState("+state+",animate="+animate);
+
         if (state == null || state == State.DRAGGING)
             throw new IllegalArgumentException("state cannot be "+state);
 
@@ -447,6 +450,8 @@ public class SlidingUpPaneLayout extends ViewGroup {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        if(DEBUG) Log.d(TAG, "-----onMeasure()");
+
         int count = getChildCount();
 
         if (getChildCount() > 2) {
@@ -529,6 +534,14 @@ public class SlidingUpPaneLayout extends ViewGroup {
                             lp.height);
                 }
 
+                if(DEBUG) {
+                    final int w = MeasureSpec.getSize(childWidthMeasureSpec);
+                    final int h = MeasureSpec.getSize(childHeightMeasureSpec);
+                    final String ws = MeasureSpec.toString(MeasureSpec.getMode(childWidthMeasureSpec));
+                    final String hs = MeasureSpec.toString(MeasureSpec.getMode(childHeightMeasureSpec));
+                    Log.d(TAG, "child.measure("+w+"x"+h+";"+ws+","+hs+")");
+                }
+
                 child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
             }
         }
@@ -544,10 +557,13 @@ public class SlidingUpPaneLayout extends ViewGroup {
             mSlideableView = null;
             mSlideRange = 0;
         }
+
+        if(DEBUG) Log.d(TAG, "mSlideRange="+mSlideRange);
     }
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        if(DEBUG) Log.d(TAG, "-----onLayout()");
 
         if (mFirstLayout) {
             switch (mState) {
@@ -598,6 +614,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
                 if (child == mSlideableView)
                     childTop += computePanelTopPosition(mSlideOffset);
 
+                if(DEBUG) Log.d(TAG, "layoutChildren("+i+",["+childLeft+","+childTop+":"+width+"x"+height+")");
                 child.layout(childLeft, childTop, childLeft + width, childTop + height);
             }
         }
@@ -696,6 +713,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
     }
 
     private boolean settleTo(float slideOffset, boolean animate) {
+        if(DEBUG) Log.d(TAG, "-----settleTo("+slideOffset+", animate="+animate);
 
         if(animate) {
             if (mSlideableView != null) {
@@ -752,31 +770,37 @@ public class SlidingUpPaneLayout extends ViewGroup {
         return (float) (topBoundCollapsed - topPosition) / mSlideRange;
     }
 
-    private void dispatchOnPanelSlide(View panel) {
+    private void dispatchOnPanelSlide() {
+        if(mSlideableView == null) return;
+        if(DEBUG) Log.d(TAG, "dispatchOnPanelSlide("+mSlideOffset+")");
         for(PanelSlideListener listener: mListeners)
-            listener.onPanelSlide(panel, mSlideOffset, (int) (mSlideOffset*mSlideRange + .5f));
+            listener.onPanelSlide(mSlideableView, mSlideOffset, (int) (mSlideOffset*mSlideRange + .5f));
     }
 
     private void dispatchOnPanelExpanded() {
         if(mSlideableView == null) return;
+        if(DEBUG) Log.d(TAG, "dispatchOnPanelExpanded()");
         for(PanelSlideListener listener: mListeners) listener.onPanelExpanded(mSlideableView);
         sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
     }
 
     private void dispatchOnPanelCollapsed() {
         if(mSlideableView == null) return;
+        if(DEBUG) Log.d(TAG, "dispatchOnPanelCollapsed()");
         for(PanelSlideListener listener: mListeners) listener.onPanelCollapsed(mSlideableView);
         sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
     }
 
     private void dispatchOnPanelAnchored() {
         if(mSlideableView == null) return;
+        if(DEBUG) Log.d(TAG, "dispatchOnPanelAnchored()");
         for(PanelSlideListener listener: mListeners) listener.onPanelAnchored(mSlideableView);
         sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
     }
 
     private void dispatchOnPanelHidden() {
         if(mSlideableView == null) return;
+        if(DEBUG) Log.d(TAG, "dispatchOnPanelHidden()");
         for(PanelSlideListener listener: mListeners) listener.onPanelHidden(mSlideableView);
         sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
     }
@@ -892,7 +916,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
             mState = State.DRAGGING;
             mSlideOffset = computeSlideOffset(top);
             setScrimAlpha((int) (mSlideOffset*255f));
-            dispatchOnPanelSlide(mSlideableView);
+            dispatchOnPanelSlide();
             invalidate();
         }
 
