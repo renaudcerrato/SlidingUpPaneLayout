@@ -616,6 +616,8 @@ public class SlidingUpPaneLayout extends ViewGroup {
                 child.layout(childLeft, childTop, childLeft + width, childTop + height);
             }
         }
+
+        if(mSlideableView != null) mSlideableView.invalidate();
     }
 
     @Override
