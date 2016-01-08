@@ -11,6 +11,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.DrawableRes;
+import android.support.annotation.IntDef;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -25,13 +26,25 @@ import android.view.accessibility.AccessibilityEvent;
 
 import com.mypopsy.slidinguppanelayout.R;
 
+import java.lang.annotation.Retention;
 import java.util.ArrayList;
 import java.util.List;
+
+import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 /**
  * Created by renaud on 07/01/16.
  */
 public class SlidingUpPaneLayout extends ViewGroup {
+
+    @Retention(SOURCE)
+    @IntDef({IntState.EXPANDED, IntState.ANCHORED, IntState.COLLAPSED, IntState.HIDDEN})
+    private @interface IntState {
+        int EXPANDED = 0;
+        int ANCHORED = 1;
+        int COLLAPSED = 2;
+        int HIDDEN = 3;
+    }
 
     /**
      * Minimum velocity that will be detected as a fling
@@ -170,6 +183,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
         setAnchorPoint(a.getFloat(R.styleable.SlidingUpPaneLayout_supl_anchor, DEFAULT_ANCHOR_POINT));
         setContentScrim(a.getDrawable(R.styleable.SlidingUpPaneLayout_supl_contentScrim));
         setShadowDrawable(a.getDrawable(R.styleable.SlidingUpPaneLayout_supl_shadow));
+        setState(a.getInt(R.styleable.SlidingUpPaneLayout_supl_initialState, IntState.COLLAPSED), false);
         mVisibleOffset = a.getDimensionPixelSize(R.styleable.SlidingUpPaneLayout_supl_visibleOffset, 0);
         a.recycle();
     }
@@ -223,6 +237,18 @@ public class SlidingUpPaneLayout extends ViewGroup {
 
     public void setState(@NonNull State state) {
         setState(state, true);
+    }
+
+    private void setState(@IntState int state, boolean animate) {
+        State s;
+        switch (state) {
+            case IntState.EXPANDED: s = State.EXPANDED; break;
+            case IntState.ANCHORED: s = State.ANCHORED; break;
+            case IntState.COLLAPSED: s = State.COLLAPSED; break;
+            case IntState.HIDDEN: s = State.HIDDEN; break;
+            default: throw new IllegalArgumentException("unknown state "+state);
+        }
+        setState(s, animate);
     }
 
     @SuppressWarnings("ConstantConditions")

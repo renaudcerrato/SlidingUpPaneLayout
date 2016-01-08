@@ -6,6 +6,12 @@
         <attr name="supl_shadow" format="reference"/>
         <attr name="supl_anchor" format="float|reference"/>
         <attr name="supl_visibleOffset" format="dimension|reference"/>
+        <attr name="supl_initialState" format="enum|reference">
+            <enum name="expanded" value="0"/>
+            <enum name="anchored" value="1"/>
+            <enum name="collapsed" value="2"/>
+            <enum name="hidden" value="3"/>
+        </attr>
     </declare-styleable>
 
 </resources>
