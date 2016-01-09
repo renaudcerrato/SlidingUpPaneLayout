@@ -733,6 +733,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
      * Computes the slide offset based on the top position of the panel
      */
     private float computeSlideOffset(int topPosition) {
+        if(mSlideRange == 0) return 0;
         final int topBoundCollapsed = computePanelTopPosition(0);
         return (float) (topBoundCollapsed - topPosition) / mSlideRange;
     }
@@ -766,28 +767,32 @@ public class SlidingUpPaneLayout extends ViewGroup {
     private void dispatchOnPanelExpanded() {
         if(mSlideableView == null) return;
         if(DEBUG) Log.d(TAG, "dispatchOnPanelExpanded()");
-        for(PanelSlideListener listener: mListeners) listener.onPanelExpanded(mSlideableView);
+        PanelSlideListener[] listeners = mListeners.toArray(new PanelSlideListener[mListeners.size()]);
+        for(PanelSlideListener listener: listeners) listener.onPanelExpanded(mSlideableView);
         sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
     }
 
     private void dispatchOnPanelCollapsed() {
         if(mSlideableView == null) return;
         if(DEBUG) Log.d(TAG, "dispatchOnPanelCollapsed()");
-        for(PanelSlideListener listener: mListeners) listener.onPanelCollapsed(mSlideableView);
+        PanelSlideListener[] listeners = mListeners.toArray(new PanelSlideListener[mListeners.size()]);
+        for(PanelSlideListener listener: listeners) listener.onPanelCollapsed(mSlideableView);
         sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
     }
 
     private void dispatchOnPanelAnchored() {
         if(mSlideableView == null) return;
         if(DEBUG) Log.d(TAG, "dispatchOnPanelAnchored()");
-        for(PanelSlideListener listener: mListeners) listener.onPanelAnchored(mSlideableView);
+        PanelSlideListener[] listeners = mListeners.toArray(new PanelSlideListener[mListeners.size()]);
+        for(PanelSlideListener listener: listeners) listener.onPanelAnchored(mSlideableView);
         sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
     }
 
     private void dispatchOnPanelHidden() {
         if(mSlideableView == null) return;
         if(DEBUG) Log.d(TAG, "dispatchOnPanelHidden()");
-        for(PanelSlideListener listener: mListeners) listener.onPanelHidden(mSlideableView);
+        PanelSlideListener[] listeners = mListeners.toArray(new PanelSlideListener[mListeners.size()]);
+        for(PanelSlideListener listener: listeners) listener.onPanelHidden(mSlideableView);
         sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
     }
 
