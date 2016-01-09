@@ -213,7 +213,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
         return mSlideOffset;
     }
 
-    public float getVisibleOffset() {
+    public int getVisibleOffset() {
         return mVisibleOffset;
     }
 
