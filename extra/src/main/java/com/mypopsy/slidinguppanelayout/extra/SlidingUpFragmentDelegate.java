@@ -14,7 +14,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewTreeObserver;
 
 import com.mypopsy.widget.SlidingUpPaneLayout;
 import com.mypopsy.widget.SlidingUpPaneLayout.State;
@@ -31,7 +30,8 @@ public final class SlidingUpFragmentDelegate extends SlidingUpPaneLayout.SimpleP
     private static final String SAVED_SHOWN_AS_SLIDING_FRAGMENT = "slidinguppanel:shownAsSliding";
     private static final String SAVED_BACK_STACK_ID = "slidinguppanel:backStackId";
     private static final String SAVED_SLIDING_PANE_LAYOUT_ID = "slidinguppanel:layoutId";
-    
+    private static final String ARG_PANEL_STATE = "slidinguppanel:state";
+
     @IdRes
     private int slidingPaneLayoutId = View.NO_ID;
     private SlidingUpPaneLayout slidingUpLayout;
@@ -55,12 +55,16 @@ public final class SlidingUpFragmentDelegate extends SlidingUpPaneLayout.SimpleP
      * @param manager FragmentManager instance
      * @param slidingPaneLayoutId Resource ID of the {@link SlidingUpPaneLayout}
      */
-    public void show(FragmentManager manager, @IdRes int slidingPaneLayoutId) {
-        if(DEBUG) Log.d(TAG, "-----show()");
+    public void show(FragmentManager manager, @IdRes int slidingPaneLayoutId, State state) {
+        if(DEBUG) Log.d(TAG, "-----show("+state+")");
         this.slidingPaneLayoutId = slidingPaneLayoutId;
         manager.beginTransaction()
-                .add(fragment, "slidingfragment-"+slidingPaneLayoutId)
+                .add(setState(fragment, state), "slidingfragment-"+slidingPaneLayoutId)
                 .commit();
+    }
+
+    public void show(FragmentManager manager, @IdRes int slidingPaneLayoutId) {
+        show(manager, slidingPaneLayoutId, EXPANDED);
     }
 
     /**
@@ -70,12 +74,17 @@ public final class SlidingUpFragmentDelegate extends SlidingUpPaneLayout.SimpleP
      * @param slidingPaneLayoutId Resource ID of the {@link SlidingUpPaneLayout}
      * @return the back stack ID of the fragment after the transaction is committed.
      */
-    public int show(FragmentTransaction transaction, @IdRes int slidingPaneLayoutId) {
-        if(DEBUG) Log.d(TAG, "-----show()");
+    public int show(FragmentTransaction transaction, @IdRes int slidingPaneLayoutId, State state) {
+        if(DEBUG) Log.d(TAG, "-----show("+state+")");
         this.slidingPaneLayoutId = slidingPaneLayoutId;
-        transaction.add(fragment, "slidingfragment-"+slidingPaneLayoutId);
+
+        transaction.add(setState(fragment, state), "slidingfragment-" + slidingPaneLayoutId);
         backStackId = transaction.commit();
         return backStackId;
+    }
+
+    public int show(FragmentTransaction transaction, @IdRes int slidingPaneLayoutId) {
+        return show(transaction, slidingPaneLayoutId, EXPANDED);
     }
 
     /**
@@ -157,16 +166,19 @@ public final class SlidingUpFragmentDelegate extends SlidingUpPaneLayout.SimpleP
         if (view != null && view.getParent() != null) {
                 throw new IllegalStateException("SlidingUpFragment can not be attached to a container view");
         }
+
+        if(slidingUpLayout != null) {
+            slidingUpLayout.addView(fragment.getView());
+            slidingUpLayout.addPaneListener(this);
+            if(savedInstanceState == null) {
+                slidingUpLayout.setState(getState(fragment, EXPANDED));
+            }
+        }
     }
 
     public void onStart() {
         if(DEBUG) Log.d(TAG, "-----onStart()");
-        if(showAsSlidingFragment && slidingUpLayout != null) {
-            slidingUpLayout.addView(fragment.getView());
-            slidingUpLayout.addPaneListener(this);
-            //TODO: save/restore state
-            scheduleExpand(EXPANDED);
-        }
+        viewDestroyed = false;
     }
 
     public void onSaveInstanceState(Bundle outState) {
@@ -199,22 +211,8 @@ public final class SlidingUpFragmentDelegate extends SlidingUpPaneLayout.SimpleP
         if(!viewDestroyed) dismissInternal(true);
     }
 
-    private void scheduleExpand(final State state) {
-        getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-            @Override
-            public boolean onPreDraw() {
-                getViewTreeObserver().removeOnPreDrawListener(this);
-                if(slidingUpLayout.getSlidingPanel() == fragment.getView())
-                    slidingUpLayout.setState(state);
-                return false;
-            }
-        });
-    }
-
     private SlidingUpPaneLayout getSlidingUpLayout() {
-        if (slidingUpLayout == null) {
-            slidingUpLayout = findSlidingUpLayout();
-        }
+        if (slidingUpLayout == null) slidingUpLayout = findSlidingUpLayout();
         return slidingUpLayout;
     }
 
@@ -236,10 +234,18 @@ public final class SlidingUpFragmentDelegate extends SlidingUpPaneLayout.SimpleP
         return null;
     }
 
-    @Nullable
-    private ViewTreeObserver getViewTreeObserver() {
-        View view = fragment.getView();
-        if(view == null) return null;
-        return view.getViewTreeObserver();
+    static private Fragment setState(Fragment fragment, State state) {
+        Bundle args = fragment.getArguments();
+        if(args == null) args = new Bundle();
+        args.putSerializable(ARG_PANEL_STATE, state);
+        return fragment;
+    }
+
+    static private State getState(Fragment fragment, State def) {
+        Bundle args = fragment.getArguments();
+        if(args == null) return def;
+        State state = (State) args.getSerializable(ARG_PANEL_STATE);
+        if(state == null) return def;
+        return state;
     }
 }
