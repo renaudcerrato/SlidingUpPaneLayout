@@ -238,6 +238,7 @@ public final class SlidingUpFragmentDelegate extends SlidingUpPaneLayout.SimpleP
         Bundle args = fragment.getArguments();
         if(args == null) args = new Bundle();
         args.putSerializable(ARG_PANEL_STATE, state);
+        fragment.setArguments(args);
         return fragment;
     }
 
