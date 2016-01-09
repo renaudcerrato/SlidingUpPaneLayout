@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity
 
     @Nullable private Toast mToast;
     @Nullable private View mCustomView;
+    private int mLastSelection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +64,9 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = ButterKnife.findById(this, R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        if(savedInstanceState != null)
+            mLastSelection = savedInstanceState.getInt("selection");
+
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.spinner_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -71,7 +75,8 @@ public class MainActivity extends AppCompatActivity
         mSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                mSlidingUpPaneLayout.setState(HIDDEN);
+                if(position != mLastSelection) mSlidingUpPaneLayout.setState(HIDDEN);
+                mLastSelection = position;
             }
 
             @Override
@@ -116,7 +121,7 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void onPanelHidden(View panel) {
-                if(mSlidingUpPaneLayout.getSlidingPanel() == mCustomView) {
+                if (mSlidingUpPaneLayout.getSlidingPanel() == mCustomView) {
                     mSlidingUpPaneLayout.removeView(mCustomView);
                 }
                 ViewCompat.animate(mFab).translationY(0).start();
@@ -184,6 +189,12 @@ public class MainActivity extends AppCompatActivity
 
     public void onFabClick(View v) {
         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.PROJECT_URL)));
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("selection", mLastSelection);
     }
 
     private void toast(String text) {
