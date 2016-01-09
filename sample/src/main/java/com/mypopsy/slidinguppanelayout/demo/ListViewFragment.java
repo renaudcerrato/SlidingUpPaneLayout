@@ -9,7 +9,7 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 
-public class ListViewFragment extends BaseFragment<ListView> {
+public class ListViewFragment extends BaseItemFragment<ListView> {
 
     @Nullable
     @Override
@@ -24,7 +24,7 @@ public class ListViewFragment extends BaseFragment<ListView> {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                ListViewFragment.this.onItemClick(position);
+                ListViewFragment.this.onItemClick(view, position);
             }
         });
     }

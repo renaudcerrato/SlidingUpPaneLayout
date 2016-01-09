@@ -7,7 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class RecyclerViewFragment extends BaseFragment<RecyclerView> {
+public class RecyclerViewFragment extends BaseItemFragment<RecyclerView> {
 
     @Nullable
     @Override
@@ -51,7 +51,7 @@ public class RecyclerViewFragment extends BaseFragment<RecyclerView> {
 
                 @Override
                 public void onClick(View v) {
-                    onItemClick(getAdapterPosition());
+                    onItemClick(DummyViewHolder.this.itemView, getAdapterPosition());
                 }
             });
         }

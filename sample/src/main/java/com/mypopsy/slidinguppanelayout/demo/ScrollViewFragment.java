@@ -7,8 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ScrollView;
 
-import com.mypopsy.slidinguppanelayout.demo.R;
-public class ScrollViewFragment extends BaseFragment<ScrollView> {
+public class ScrollViewFragment extends BaseItemFragment<ScrollView> {
 
     @Nullable
     @Override
@@ -22,11 +21,11 @@ public class ScrollViewFragment extends BaseFragment<ScrollView> {
         ViewGroup content = ((ViewGroup)scrollView.getChildAt(0));
         for(int i = 0; i < getItemCount(); i++) {
             final int position = i;
-            View view = bindItemView(createItemView(content), i);
+            final View view = bindItemView(createItemView(content), i);
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    onItemClick(position);
+                    onItemClick(view, position);
                 }
             });
             content.addView(view, i);

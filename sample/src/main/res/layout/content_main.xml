@@ -14,11 +14,11 @@
     tools:showIn="@layout/activity_main"
     android:orientation="vertical">
 
-    <Button
+    <Spinner
+        android:id="@+id/spinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="onAddFragment"
-        android:text="Add Fragment"/>
+        android:layout_marginBottom="@dimen/activity_horizontal_margin"/>
 
     <Button
         android:layout_width="match_parent"
