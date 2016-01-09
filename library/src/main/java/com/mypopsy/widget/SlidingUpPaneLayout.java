@@ -106,7 +106,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
     /**
      * How far the panel is visible when collapsed.
      */
-    private int mVisibleOffset;
+    private int mVisibleHeight;
 
     /**
      * How far in pixels the slideable panel may move.
@@ -186,7 +186,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
         setContentScrim(a.getDrawable(R.styleable.SlidingUpPaneLayout_supl_contentScrim));
         setShadowDrawable(a.getDrawable(R.styleable.SlidingUpPaneLayout_supl_shadow));
         setInitialState(a.getInt(R.styleable.SlidingUpPaneLayout_supl_initialState, IntState.COLLAPSED));
-        mVisibleOffset = a.getDimensionPixelSize(R.styleable.SlidingUpPaneLayout_supl_visibleOffset, 0);
+        mVisibleHeight = a.getDimensionPixelSize(R.styleable.SlidingUpPaneLayout_supl_visibleHeight, 0);
         a.recycle();
     }
 
@@ -213,13 +213,13 @@ public class SlidingUpPaneLayout extends ViewGroup {
         return mSlideOffset;
     }
 
-    public int getVisibleOffset() {
-        return mVisibleOffset;
+    public int getVisibleHeight() {
+        return mVisibleHeight;
     }
 
-    public void setVisibleOffset(int visibleOffset) {
-        if(mVisibleOffset != visibleOffset) {
-            mVisibleOffset = visibleOffset;
+    public void setVisibleHeight(int visibleHeight) {
+        if(mVisibleHeight != visibleHeight) {
+            mVisibleHeight = visibleHeight;
             requestLayout();
         }
     }
@@ -233,11 +233,11 @@ public class SlidingUpPaneLayout extends ViewGroup {
     }
 
     public boolean isHidden() {
-        return mState == State.HIDDEN || (mState == State.COLLAPSED && mVisibleOffset <= 0);
+        return mState == State.HIDDEN || (mState == State.COLLAPSED && mVisibleHeight <= 0);
     }
 
     public boolean isCollapsed() {
-        return mState == State.COLLAPSED || (mState == State.HIDDEN && mVisibleOffset <= 0);
+        return mState == State.COLLAPSED || (mState == State.HIDDEN && mVisibleHeight <= 0);
     }
 
     public boolean isAnchored() {
@@ -533,7 +533,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
 
         if(getChildCount() == 2) {
             mSlideableView = getChildAt(1);
-            mSlideRange = mSlideableView.getMeasuredHeight() - mVisibleOffset;
+            mSlideRange = mSlideableView.getMeasuredHeight() - mVisibleHeight;
         }else if(mSlideableView != null) {
             mSlideableView = null;
             mSlideRange = 0;
@@ -667,7 +667,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
         } else {
             ss.state = State.COLLAPSED;
         }
-        ss.visibleOffset = mVisibleOffset;
+        ss.visibleOffset = mVisibleHeight;
         return ss;
     }
 
@@ -677,7 +677,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
         SavedState ss = (SavedState) state;
         super.onRestoreInstanceState(ss.getSuperState());
         mState = ss.state != null ? ss.state : State.COLLAPSED;
-        mVisibleOffset = ss.visibleOffset;
+        mVisibleHeight = ss.visibleOffset;
     }
 
     private boolean settleTo(float slideOffset, boolean animate) {
@@ -704,7 +704,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
                 mState = State.EXPANDED;
                 dispatchOnPanelExpanded();
             }
-        }else if (mSlideOffset < 0 || (mSlideOffset == 0 && mVisibleOffset <= 0)) {
+        }else if (mSlideOffset < 0 || (mSlideOffset == 0 && mVisibleHeight <= 0)) {
             mState = State.HIDDEN;
             if(mSlideableView != null) mSlideableView.setVisibility(View.INVISIBLE);
             dispatchOnPanelHidden();
@@ -726,7 +726,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
      */
     private int computePanelTopPosition(float slideOffset) {
         int slidePixelOffset = (int) (slideOffset * mSlideRange);
-        return getMeasuredHeight() - getPaddingBottom() - mVisibleOffset - slidePixelOffset;
+        return getMeasuredHeight() - getPaddingBottom() - mVisibleHeight - slidePixelOffset;
     }
 
     /*
@@ -747,7 +747,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
             case ANCHORED:
                 return mAnchorPoint;
             case HIDDEN:
-                int newTop = computePanelTopPosition(0) + mVisibleOffset;
+                int newTop = computePanelTopPosition(0) + mVisibleHeight;
                 return computeSlideOffset(newTop);
             case COLLAPSED:
                 return 0;
