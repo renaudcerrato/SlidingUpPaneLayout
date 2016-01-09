@@ -191,7 +191,10 @@ public class SlidingUpPaneLayout extends ViewGroup {
     }
 
     public void setAnchorPoint(float anchorPoint) {
-        mAnchorPoint = anchorPoint;
+        if(mAnchorPoint != anchorPoint) {
+            mAnchorPoint = anchorPoint;
+            requestLayout();
+        }
     }
 
     public void addPaneListener(PanelSlideListener listener) {
@@ -316,13 +319,17 @@ public class SlidingUpPaneLayout extends ViewGroup {
 
     @Override
     public void addView(View child, int index, ViewGroup.LayoutParams params) {
+        if (getChildCount() == 2) {
+            throw new IllegalStateException(getClass().getSimpleName() + " only supports 2 children");
+        }
         mFirstLayout = true;
         super.addView(child, index, params);
     }
 
     @Nullable
     public View getSlidingPanel() {
-        return mSlideableView;
+        if(getChildCount() == 2) return getChildAt(1);
+        return null;
     }
 
     @Override
@@ -444,13 +451,6 @@ public class SlidingUpPaneLayout extends ViewGroup {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         if(DEBUG) Log.d(TAG, "-----onMeasure()");
 
-        int count = getChildCount();
-
-        if (getChildCount() > 2) {
-            throw new IllegalStateException(
-                    getClass().getSimpleName() + " only supports 2 children");
-        }
-
         final boolean measureMatchParentChildren =
                 MeasureSpec.getMode(widthMeasureSpec) != MeasureSpec.EXACTLY ||
                         MeasureSpec.getMode(heightMeasureSpec) != MeasureSpec.EXACTLY;
@@ -460,6 +460,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
         int maxHeight = 0;
         int maxWidth = 0;
         int childState = 0;
+        int count = getChildCount();
 
         for (int i = 0; i < count; i++) {
             final View child = getChildAt(i);
@@ -533,10 +534,6 @@ public class SlidingUpPaneLayout extends ViewGroup {
         if(getChildCount() == 2) {
             mSlideableView = getChildAt(1);
             mSlideRange = mSlideableView.getMeasuredHeight() - mVisibleOffset;
-            // if the sliding panel is not visible, then force hidden state
-            if (mSlideableView.getVisibility() != VISIBLE) {
-                mState = State.HIDDEN;
-            }
         }else if(mSlideableView != null) {
             mSlideableView = null;
             mSlideRange = 0;
@@ -637,12 +634,14 @@ public class SlidingUpPaneLayout extends ViewGroup {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
+        if(DEBUG) Log.d(TAG, "-----onAttachedToWindow()");
         mFirstLayout = true;
     }
 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
+        if(DEBUG) Log.d(TAG, "-----onDetachedFromWindow()");
         mFirstLayout = true;
     }
 
@@ -659,6 +658,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
 
     @Override
     public Parcelable onSaveInstanceState() {
+        if(DEBUG) Log.d(TAG, "-----onSaveInstanceState()");
         Parcelable superState = super.onSaveInstanceState();
 
         SavedState ss = new SavedState(superState);
@@ -673,6 +673,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
 
     @Override
     public void onRestoreInstanceState(Parcelable state) {
+        if(DEBUG) Log.d(TAG, "-----onRestoreInstanceState()");
         SavedState ss = (SavedState) state;
         super.onRestoreInstanceState(ss.getSuperState());
         mState = ss.state != null ? ss.state : State.COLLAPSED;
@@ -717,7 +718,6 @@ public class SlidingUpPaneLayout extends ViewGroup {
             dispatchOnPanelAnchored();
         }
 
-        invalidate();
         return true;
     }
 
