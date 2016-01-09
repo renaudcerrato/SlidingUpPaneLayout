@@ -267,9 +267,9 @@ public class SlidingUpPaneLayout extends ViewGroup {
         if (state == null || state == State.DRAGGING)
             throw new IllegalArgumentException("state cannot be " + state);
 
-        if (!isEnabled() || (!mFirstLayout && mSlideableView == null) ||
-                state == mState || mState == State.DRAGGING)
+        if (state == mState | !isEnabled()) {
             return;
+        }
 
         if (mSlideableView != null)
             mSlideableView.setVisibility(View.VISIBLE);
