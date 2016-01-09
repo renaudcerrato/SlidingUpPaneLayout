@@ -4,6 +4,8 @@ import android.support.annotation.IdRes;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 
+import com.mypopsy.widget.SlidingUpPaneLayout;
+
 /**
  * This interface can be applied to a {@link android.support.v4.app.Fragment} to make it compatible with
  * {@link SlidingUpFragmentDelegate}.
@@ -19,8 +21,7 @@ public interface SlidingUpFragmentInterface {
      * @param slidingUpLayoutId The bottom sheet layoutId in the parent view to attach the
      * fragment to.
      */
-    void show(FragmentManager manager, @IdRes int slidingUpLayoutId);
-
+    void show(FragmentManager manager, @IdRes int slidingUpLayoutId, SlidingUpPaneLayout.State state);
     /**
      * Display the bottom sheet, adding the fragment using an excising transaction and then
      * committing the transaction.
@@ -29,7 +30,7 @@ public interface SlidingUpFragmentInterface {
      * @param slidingUpLayoutId The bottom sheet layoutId in the parent view to attach the
      * fragment to.
      */
-    int show(FragmentTransaction transaction, @IdRes int slidingUpLayoutId);
+    int show(FragmentTransaction transaction, @IdRes int slidingUpLayoutId, SlidingUpPaneLayout.State state);
 
     /**
      * Dismiss the fragment and it's bottom sheet. If the fragment was added to the back stack, all

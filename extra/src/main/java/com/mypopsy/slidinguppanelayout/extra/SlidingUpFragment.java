@@ -9,6 +9,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 
+import com.mypopsy.widget.SlidingUpPaneLayout;
+
 /**
  * A fragment that shows itself in a {@link com.mypopsy.widget.SlidingUpPaneLayout}. Like a {@link
  * android.support.v4.app.DialogFragment}, you can show this either in a bottom sheet by using
@@ -28,16 +30,24 @@ public class SlidingUpFragment extends Fragment implements SlidingUpFragmentInte
      * {@inheritDoc}
      */
     @Override
-    public void show(FragmentManager manager, @IdRes int bottomSheetLayoutId) {
-        getDelegate().show(manager, bottomSheetLayoutId);
+    public void show(FragmentManager manager, @IdRes int slidingPaneLayoutId, SlidingUpPaneLayout.State state) {
+        getDelegate().show(manager, slidingPaneLayoutId, state);
+    }
+
+    public void show(FragmentManager manager, @IdRes int slidingPaneLayoutId) {
+        show(manager, slidingPaneLayoutId, SlidingUpPaneLayout.State.EXPANDED);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public int show(FragmentTransaction transaction, @IdRes int bottomSheetLayoutId) {
-        return getDelegate().show(transaction, bottomSheetLayoutId);
+    public int show(FragmentTransaction transaction, @IdRes int slidingPaneLayoutId, SlidingUpPaneLayout.State state) {
+        return getDelegate().show(transaction, slidingPaneLayoutId, state);
+    }
+
+    public int show(FragmentTransaction transaction, @IdRes int slidingPaneLayoutId) {
+        return getDelegate().show(transaction, slidingPaneLayoutId, SlidingUpPaneLayout.State.EXPANDED);
     }
 
     /**
