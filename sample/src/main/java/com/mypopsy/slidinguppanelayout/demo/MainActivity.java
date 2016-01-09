@@ -157,7 +157,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void ensureSlideView(State state) {
-        if(mSlidingUpPaneLayout.getSlidingPanel() == null) return;
+        if(mSlidingUpPaneLayout.getSlidingPanel() != null) return;
 
         switch (mSpinner.getSelectedItemPosition()) {
             case 0:
