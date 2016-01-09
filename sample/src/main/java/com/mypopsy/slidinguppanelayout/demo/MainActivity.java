@@ -6,6 +6,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewCompat;
@@ -36,7 +37,8 @@ import static com.mypopsy.widget.SlidingUpPaneLayout.State.COLLAPSED;
 import static com.mypopsy.widget.SlidingUpPaneLayout.State.EXPANDED;
 import static com.mypopsy.widget.SlidingUpPaneLayout.State.HIDDEN;
 
-public class MainActivity extends AppCompatActivity implements BaseItemFragment.OnItemClickListener, SlidingUpPaneLayout.PanelSlideListener {
+public class MainActivity extends AppCompatActivity
+        implements BaseItemFragment.OnItemClickListener {
 
     private static final String GITHUB_PAGE = "https://github.com/renaudcerrato";
 
@@ -49,18 +51,17 @@ public class MainActivity extends AppCompatActivity implements BaseItemFragment.
     @Bind(R.id.spinner)
     Spinner mSpinner;
 
-    private Toast mToast;
-    private View mCustomView;
+    @Nullable private Toast mToast;
+    @Nullable private View mCustomView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+
         Toolbar toolbar = ButterKnife.findById(this, R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        mSlidingUpPaneLayout.addPaneListener(this);
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.spinner_array, android.R.layout.simple_spinner_item);
@@ -87,23 +88,40 @@ public class MainActivity extends AppCompatActivity implements BaseItemFragment.
                     toast("fragment destroyed");
             }
         });
-    }
 
-    private void onSelection(int position, State state) {
-        switch (position) {
-            case 0:
-                addView(getCustomView());
-                break;
-            case 1:
-                addFragment(new RecyclerViewFragment(), state);
-                break;
-            case 2:
-                addFragment(new ListViewFragment(), state);
-                break;
-            case 3:
-                addFragment(new ScrollViewFragment(), state);
-                break;
-        }
+        mSlidingUpPaneLayout.addPaneListener(new SlidingUpPaneLayout.PanelSlideListener() {
+
+            @Override
+            public void onPanelSlide(View panel, float slideOffset, int slidePixels) {
+                int visibleOffset = mSlidingUpPaneLayout.getVisibleHeight();
+                float y = visibleOffset + slidePixels;
+                if (slideOffset > 0) y = Math.min(visibleOffset, y);
+                ViewCompat.setTranslationY(mFab, -y);
+            }
+
+            @Override
+            public void onPanelCollapsed(View panel) {
+                ViewCompat.animate(mFab).translationY(-mSlidingUpPaneLayout.getVisibleHeight()).start();
+            }
+
+            @Override
+            public void onPanelExpanded(View panel) {
+
+            }
+
+            @Override
+            public void onPanelAnchored(View panel) {
+
+            }
+
+            @Override
+            public void onPanelHidden(View panel) {
+                if(mSlidingUpPaneLayout.getSlidingPanel() == mCustomView) {
+                    mSlidingUpPaneLayout.removeView(mCustomView);
+                }
+                ViewCompat.animate(mFab).translationY(0).start();
+            }
+        });
     }
 
     public void addView(View view) {
@@ -114,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements BaseItemFragment.
     public void addFragment(final SlidingUpFragment fragment, State state) {
         final FragmentManager fm = getSupportFragmentManager();
         if (mSlidingUpPaneLayout.getSlidingPanel() != null) mSlidingUpPaneLayout.removeViewAt(1);
+        // add the fragment to the back stack
         FragmentTransaction transaction = fm.beginTransaction().addToBackStack(null);
         fragment.show(transaction, mSlidingUpPaneLayout.getId(), state);
     }
@@ -138,38 +157,22 @@ public class MainActivity extends AppCompatActivity implements BaseItemFragment.
     }
 
     private void ensureSlideView(State state) {
-        if(mSlidingUpPaneLayout.getSlidingPanel() == null) onSelection(mSpinner.getSelectedItemPosition(), state);
-    }
+        if(mSlidingUpPaneLayout.getSlidingPanel() == null) return;
 
-    @Override
-    public void onPanelSlide(View panel, float slideOffset, int slidePixels) {
-        int visibleOffset = mSlidingUpPaneLayout.getVisibleHeight();
-        float y = visibleOffset + slidePixels;
-        if (slideOffset > 0) y = Math.min(visibleOffset, y);
-        ViewCompat.setTranslationY(mFab, -y);
-    }
-
-    @Override
-    public void onPanelCollapsed(View panel) {
-        ViewCompat.animate(mFab).translationY(-mSlidingUpPaneLayout.getVisibleHeight()).start();
-    }
-
-    @Override
-    public void onPanelExpanded(View panel) {
-
-    }
-
-    @Override
-    public void onPanelAnchored(View panel) {
-
-    }
-
-    @Override
-    public void onPanelHidden(View panel) {
-        if(mSlidingUpPaneLayout.getSlidingPanel() == mCustomView) {
-            mSlidingUpPaneLayout.removeView(mCustomView);
+        switch (mSpinner.getSelectedItemPosition()) {
+            case 0:
+                addView(getCustomView());
+                break;
+            case 1:
+                addFragment(new RecyclerViewFragment(), state);
+                break;
+            case 2:
+                addFragment(new ListViewFragment(), state);
+                break;
+            case 3:
+                addFragment(new ScrollViewFragment(), state);
+                break;
         }
-        ViewCompat.animate(mFab).translationY(0).start();
     }
 
     @Override
@@ -177,7 +180,10 @@ public class MainActivity extends AppCompatActivity implements BaseItemFragment.
         scrollTo(parent, view);
         setBackground(view.getBackground());
         mSlidingUpPaneLayout.setState(COLLAPSED);
-        toast("clicked " + position);
+    }
+
+    public void onFabClick(View v) {
+        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.PROJECT_URL)));
     }
 
     private void toast(String text) {
@@ -196,10 +202,6 @@ public class MainActivity extends AppCompatActivity implements BaseItemFragment.
             ((RecyclerView) parent).smoothScrollBy(0, view.getTop());
         else
             parent.scrollBy(0, view.getTop());
-    }
-
-    public void onFabClick(View v) {
-        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.PROJECT_URL)));
     }
 
     private void setBackground(Drawable drawable) {
@@ -223,6 +225,12 @@ public class MainActivity extends AppCompatActivity implements BaseItemFragment.
         webView.loadUrl(GITHUB_PAGE);
 
         webView.setWebViewClient(new WebViewClient() {
+
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                return super.shouldOverrideUrlLoading(view, url);
+            }
+
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 toolbar.setTitle("Loading...");
@@ -237,6 +245,7 @@ public class MainActivity extends AppCompatActivity implements BaseItemFragment.
         });
 
         webView.setWebChromeClient(new WebChromeClient() {
+
             @Override
             public void onReceivedTitle(WebView view, String title) {
                 toolbar.setTitle(view.getTitle());
@@ -244,6 +253,7 @@ public class MainActivity extends AppCompatActivity implements BaseItemFragment.
 
             @Override
             public void onReceivedIcon(WebView view, Bitmap icon) {
+
                 if (icon != null) {
                     BitmapDrawable d = new BitmapDrawable(icon);
                     d.setTargetDensity(3*getResources().getDisplayMetrics().densityDpi);
