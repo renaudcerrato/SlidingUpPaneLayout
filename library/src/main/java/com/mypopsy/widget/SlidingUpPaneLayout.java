@@ -211,6 +211,10 @@ public class SlidingUpPaneLayout extends ViewGroup {
         return mSlideOffset;
     }
 
+    public int getSlidePixels() {
+        return (int) (mSlideOffset*mSlideRange + .5f);
+    }
+
     public int getVisibleHeight() {
         return mVisibleHeight;
     }
@@ -767,7 +771,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
         if(mSlideableView == null) return;
         if(DEBUG) Log.d(TAG, "dispatchOnPanelSlide("+mSlideOffset+")");
         for(PanelSlideListener listener: mListeners)
-            listener.onPanelSlide(mSlideableView, mSlideOffset, (int) (mSlideOffset*mSlideRange + .5f));
+            listener.onPanelSlide(mSlideableView, mSlideOffset, getSlidePixels());
     }
 
     private void dispatchOnPanelExpanded() {
