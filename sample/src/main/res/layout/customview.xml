@@ -10,8 +10,9 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        app:theme="@style/AppTheme"
-        android:background="#cccccc"/>
+        app:titleTextColor="?android:attr/textColorPrimaryInverse"
+        app:subtitleTextColor="?android:attr/textColorPrimaryInverse"
+        android:background="?attr/colorPrimaryDark"/>
 
     <WebView
         android:id="@+id/webview"

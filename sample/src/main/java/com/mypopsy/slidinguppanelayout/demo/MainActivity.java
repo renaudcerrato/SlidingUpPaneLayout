@@ -1,14 +1,16 @@
 package com.mypopsy.slidinguppanelayout.demo;
 
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -21,6 +23,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CompoundButton;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -48,6 +51,12 @@ public class MainActivity extends AppCompatActivity
     @Bind(R.id.fab)
     View mFab;
 
+    @Bind(R.id.button_collapse)
+    View mCollapseButton;
+
+    @Bind(R.id.button_switch)
+    CompoundButton mCollapsible;
+
     @Bind(R.id.spinner)
     Spinner mSpinner;
 
@@ -72,10 +81,17 @@ public class MainActivity extends AppCompatActivity
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSpinner.setAdapter(adapter);
 
+        mCollapsible.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+               updateVisibleHeight();
+            }
+        });
+
         mSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if(position != mLastSelection) mSlidingUpPaneLayout.setState(HIDDEN);
+                if (position != mLastSelection) mSlidingUpPaneLayout.setState(HIDDEN);
                 mLastSelection = position;
             }
 
@@ -85,23 +101,11 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        final FragmentManager fm = getSupportFragmentManager();
-        fm.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
-            @Override
-            public void onBackStackChanged() {
-                if (fm.getBackStackEntryCount() == 0)
-                    toast("fragment destroyed");
-            }
-        });
-
         mSlidingUpPaneLayout.addPaneListener(new SlidingUpPaneLayout.PanelSlideListener() {
 
             @Override
             public void onPanelSlide(View panel, float slideOffset, int slidePixels) {
-                int visibleOffset = mSlidingUpPaneLayout.getVisibleHeight();
-                float y = visibleOffset + slidePixels;
-                if (slideOffset > 0) y = Math.min(visibleOffset, y);
-                ViewCompat.setTranslationY(mFab, -y);
+                updateFabPosition();
             }
 
             @Override
@@ -127,6 +131,8 @@ public class MainActivity extends AppCompatActivity
                 ViewCompat.animate(mFab).translationY(0).start();
             }
         });
+
+        ensureSlideView(savedInstanceState == null ? COLLAPSED : mSlidingUpPaneLayout.getState());
     }
 
     public void addView(View view) {
@@ -137,9 +143,7 @@ public class MainActivity extends AppCompatActivity
     public void addFragment(final SlidingUpFragment fragment, State state) {
         final FragmentManager fm = getSupportFragmentManager();
         if (mSlidingUpPaneLayout.getSlidingPanel() != null) mSlidingUpPaneLayout.removeViewAt(1);
-        // add the fragment to the back stack
-        FragmentTransaction transaction = fm.beginTransaction().addToBackStack(null);
-        fragment.show(transaction, mSlidingUpPaneLayout.getId(), state);
+        fragment.show(fm, mSlidingUpPaneLayout.getId(), state);
     }
 
     public void onExpandClick(View v) {
@@ -167,6 +171,7 @@ public class MainActivity extends AppCompatActivity
         switch (mSpinner.getSelectedItemPosition()) {
             case 0:
                 addView(getCustomView());
+                mSlidingUpPaneLayout.setState(state);
                 break;
             case 1:
                 addFragment(new RecyclerViewFragment(), state);
@@ -178,6 +183,14 @@ public class MainActivity extends AppCompatActivity
                 addFragment(new ScrollViewFragment(), state);
                 break;
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(mSlidingUpPaneLayout.isVisible())
+            mSlidingUpPaneLayout.setState(HIDDEN);
+        else
+            super.onBackPressed();
     }
 
     @Override
@@ -195,6 +208,25 @@ public class MainActivity extends AppCompatActivity
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt("selection", mLastSelection);
+    }
+
+    private void updateVisibleHeight() {
+        boolean collapsible = mCollapsible.isChecked();
+        mCollapseButton.setVisibility(collapsible ? View.VISIBLE : View.GONE);
+
+        TypedArray a = getTheme().obtainStyledAttributes(R.style.AppTheme, new int[]{R.attr.actionBarSize});
+        int actionBarSize = a.getDimensionPixelSize(0, 0);
+        mSlidingUpPaneLayout.setVisibleHeight(collapsible ? actionBarSize : 0);
+
+        updateFabPosition();
+    }
+
+    private void updateFabPosition() {
+        int visibleOffset = mSlidingUpPaneLayout.getVisibleHeight();
+        int slidePixels = mSlidingUpPaneLayout.getSlidePixels();
+        float y = visibleOffset + slidePixels;
+        if (slidePixels > 0) y = Math.min(visibleOffset, y);
+        ViewCompat.setTranslationY(mFab, -y);
     }
 
     private void toast(String text) {
@@ -267,6 +299,7 @@ public class MainActivity extends AppCompatActivity
 
                 if (icon != null) {
                     BitmapDrawable d = new BitmapDrawable(icon);
+                    d.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
                     d.setTargetDensity(3*getResources().getDisplayMetrics().densityDpi);
                     toolbar.setNavigationIcon(d);
                 } else

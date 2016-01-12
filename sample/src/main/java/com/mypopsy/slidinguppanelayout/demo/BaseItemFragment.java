@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.mypopsy.slidinguppanelayout.extra.SlidingUpFragment;
 
@@ -23,20 +24,26 @@ abstract public class BaseItemFragment<T extends ViewGroup> extends SlidingUpFra
     @Bind(android.R.id.list)
     protected T mScrollableView;
 
-    private LayoutInflater mInfltater;
+    private LayoutInflater mInflater;
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.bind(this, view);
-        mInfltater = LayoutInflater.from(view.getContext());
+        mInflater = LayoutInflater.from(view.getContext());
         populate(mScrollableView);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Toast.makeText(getActivity(), getClass().getSimpleName() + " destroyed", Toast.LENGTH_SHORT).show();
     }
 
     protected abstract void populate(T scrollableView);
 
     protected View createItemView(ViewGroup parent) {
-        return mInfltater.inflate(R.layout.listitem, parent, false);
+        return mInflater.inflate(R.layout.listitem, parent, false);
     }
 
     protected int getItemCount() {
