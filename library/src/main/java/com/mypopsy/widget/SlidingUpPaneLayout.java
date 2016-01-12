@@ -32,9 +32,7 @@ import java.util.List;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
-/**
- * Created by renaud on 07/01/16.
- */
+
 public class SlidingUpPaneLayout extends ViewGroup {
 
     private static final String TAG = SlidingUpPaneLayout.class.getSimpleName();
@@ -562,13 +560,21 @@ public class SlidingUpPaneLayout extends ViewGroup {
                 int childTop = parentTop + lp.topMargin;
 
                 if (child == mSlideableView) {
-                    if(mFirstLayout && !mShouldAnimatePendingState) mSlideOffset = computeSlideOffset(mState);
+                    if(mFirstLayout) {
+                        mSlideableView.setVisibility(View.VISIBLE);
+                        if(!mShouldAnimatePendingState) mSlideOffset = computeSlideOffset(mState);
+                    }
                     childTop += computePanelTopPosition(mSlideOffset);
                 }
 
                 if(DEBUG) Log.d(TAG, "child.layout("+i+",["+childLeft+","+childTop+":"+width+"x"+height+")");
                 child.layout(childLeft, childTop, childLeft + width, childTop + height);
             }
+        }
+
+        // sanity check
+        if(mVisibleHeight == 0 && mState == State.COLLAPSED && mPendingState == null) {
+            mPendingState = State.HIDDEN;
         }
 
         if(mPendingState != null) {
@@ -603,7 +609,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
 
     @Override
     protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
-        if(DEBUG) Log.d(TAG, "-----drawChild("+(child == mSlideableView ? "panel":"main")+")");
+        if(DEBUG) Log.d(TAG, "-----drawChild("+(child == mSlideableView ? "panel" : "main")+")");
 
         if (mSlideableView == null || mSlideableView == child)
             return super.drawChild(canvas, child, drawingTime);
@@ -667,7 +673,6 @@ public class SlidingUpPaneLayout extends ViewGroup {
         } else {
             ss.state = State.COLLAPSED;
         }
-        ss.visibleOffset = mVisibleHeight;
         return ss;
     }
 
@@ -677,7 +682,6 @@ public class SlidingUpPaneLayout extends ViewGroup {
         SavedState ss = (SavedState) state;
         super.onRestoreInstanceState(ss.getSuperState());
         mState = ss.state != null ? ss.state : State.COLLAPSED;
-        mVisibleHeight = ss.visibleOffset;
     }
 
     private boolean settleTo(float slideOffset, boolean animate) {
@@ -706,7 +710,9 @@ public class SlidingUpPaneLayout extends ViewGroup {
             }
         }else if (mSlideOffset < 0 || (mSlideOffset == 0 && mVisibleHeight <= 0)) {
             mState = State.HIDDEN;
-            if(mSlideableView != null) mSlideableView.setVisibility(View.INVISIBLE);
+            if(mSlideableView != null) {
+                mSlideableView.setVisibility(View.INVISIBLE);
+            }
             dispatchOnPanelHidden();
         }else if (mSlideOffset == 0) {
             if (mState != State.COLLAPSED) {
@@ -862,6 +868,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
         }
 
         View child = getChildAt(0);
+
         final int clampedChildLeft = Math.max(leftBound, child.getLeft());
         final int clampedChildTop = Math.max(topBound, child.getTop());
         final int clampedChildRight = Math.min(rightBound, child.getRight());
@@ -975,7 +982,6 @@ public class SlidingUpPaneLayout extends ViewGroup {
 
     static class SavedState extends BaseSavedState {
         State state;
-        int visibleOffset;
 
         SavedState(Parcelable superState) {
             super(superState);
@@ -984,14 +990,12 @@ public class SlidingUpPaneLayout extends ViewGroup {
         private SavedState(Parcel in) {
             super(in);
             state = (State) in.readSerializable();
-            visibleOffset = in.readInt();
         }
 
         @Override
         public void writeToParcel(Parcel out, int flags) {
             super.writeToParcel(out, flags);
             out.writeSerializable(state == null ? null : state.toString());
-            out.writeInt(visibleOffset);
         }
 
         public static final Parcelable.Creator<SavedState> CREATOR =
