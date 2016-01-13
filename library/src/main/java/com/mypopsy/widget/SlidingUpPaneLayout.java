@@ -577,7 +577,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
         }
 
         // sanity check
-        if(mVisibleHeight == 0 && mState == State.COLLAPSED && mPendingState == null) {
+        if(mVisibleHeight <= 0 && mState == State.COLLAPSED && mPendingState == null) {
             mPendingState = State.HIDDEN;
         }
 
@@ -690,6 +690,8 @@ public class SlidingUpPaneLayout extends ViewGroup {
 
     private boolean settleTo(float slideOffset, boolean animate) {
         if(DEBUG) Log.d(TAG, "-----settleTo("+slideOffset+", animate="+animate+")");
+
+        if(mSlideableView != null) mSlideableView.setVisibility(View.VISIBLE);
 
         if(animate) {
             if (mSlideableView != null) {
