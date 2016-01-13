@@ -194,6 +194,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        updateFabPosition();
+    }
+
+    @Override
     public void onItemClick(final ViewGroup parent, final View view, final int position) {
         scrollTo(parent, view);
         setBackground(view.getBackground());
