@@ -11,6 +11,7 @@
     app:supl_shadow="@drawable/shadow"
     app:supl_initialState="hidden"
     app:supl_visibleHeight="?attr/actionBarSize"
+    app:supl_allowOutsideTouch="false"
     tools:context=".DemoActivity">
 
     <!-- your main content -->

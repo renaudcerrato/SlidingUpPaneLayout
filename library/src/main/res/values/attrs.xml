@@ -2,10 +2,17 @@
 <resources>
 
     <declare-styleable name="SlidingUpPaneLayout">
+        <!-- color of the content scrim -->
         <attr name="supl_contentScrim" format="color|reference"/>
+        <!-- shadow drawable above the sliding panel -->
         <attr name="supl_shadow" format="reference"/>
+        <!-- anchor point -->
         <attr name="supl_anchor" format="float|reference"/>
+        <!-- visible height when collapsed -->
         <attr name="supl_visibleHeight" format="dimension|reference"/>
+        <!-- if false, touch events outside the slideable panel will be consumed and the panel collapsed -->
+        <attr name="supl_allowOutsideTouch" format="boolean|reference"/>
+        <!-- initial panel state -->
         <attr name="supl_initialState" format="enum|reference">
             <enum name="expanded" value="0"/>
             <enum name="anchored" value="1"/>

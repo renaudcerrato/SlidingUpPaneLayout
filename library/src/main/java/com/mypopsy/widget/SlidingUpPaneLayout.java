@@ -123,6 +123,11 @@ public class SlidingUpPaneLayout extends ViewGroup {
     private boolean mClip = false;
 
     /**
+     * True if touch events outside the slidable view should collapse
+     */
+    private boolean mCollapseOnTouchOutside;
+
+    /**
      * A panel view is locked into internal scrolling or another condition that
      * is preventing a drag.
      */
@@ -184,6 +189,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
         setContentScrim(a.getDrawable(R.styleable.SlidingUpPaneLayout_supl_contentScrim));
         setShadowDrawable(a.getDrawable(R.styleable.SlidingUpPaneLayout_supl_shadow));
         setInitialState(a.getInt(R.styleable.SlidingUpPaneLayout_supl_initialState, IntState.COLLAPSED));
+        mCollapseOnTouchOutside = !a.getBoolean(R.styleable.SlidingUpPaneLayout_supl_allowOutsideTouch, true);
         mVisibleHeight = a.getDimensionPixelSize(R.styleable.SlidingUpPaneLayout_supl_visibleHeight, 0);
         a.recycle();
     }
@@ -355,7 +361,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
             }
             case MotionEvent.ACTION_UP: {
                 // close on tap outside
-                if (mSlideOffset > 0) {
+                if (mSlideOffset > 0 && mCollapseOnTouchOutside) {
                     final float dx = x - mInitialMotionX;
                     final float dy = y - mInitialMotionY;
                     final int slop = mDragHelper.getTouchSlop();
@@ -393,7 +399,9 @@ public class SlidingUpPaneLayout extends ViewGroup {
                 mInitialMotionX = x;
                 mInitialMotionY = y;
 
-                if(mSlideOffset > 0 && !mDragHelper.isViewUnder(mSlideableView, (int) x, (int) y)) {
+                if(mCollapseOnTouchOutside &&
+                        mSlideOffset > 0 &&
+                        !mDragHelper.isViewUnder(mSlideableView, (int) x, (int) y)) {
                     mIsUnableToDrag = true;
                     return true;
                 }
