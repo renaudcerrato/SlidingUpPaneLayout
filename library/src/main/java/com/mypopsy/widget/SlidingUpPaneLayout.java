@@ -355,7 +355,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
             }
             case MotionEvent.ACTION_UP: {
                 // close on tap outside
-                if (isVisible()) {
+                if (mSlideOffset > 0) {
                     final float dx = x - mInitialMotionX;
                     final float dy = y - mInitialMotionY;
                     final int slop = mDragHelper.getTouchSlop();
@@ -390,9 +390,15 @@ public class SlidingUpPaneLayout extends ViewGroup {
 
         switch (action) {
             case MotionEvent.ACTION_DOWN: {
-                mIsUnableToDrag = false;
                 mInitialMotionX = x;
                 mInitialMotionY = y;
+
+                if(mSlideOffset > 0 && !mDragHelper.isViewUnder(mSlideableView, (int) x, (int) y)) {
+                    mIsUnableToDrag = true;
+                    return true;
+                }
+
+                mIsUnableToDrag = false;
                 break;
             }
             case MotionEvent.ACTION_MOVE: {
