@@ -2,7 +2,6 @@
 <resources>
 
     <string-array name="spinner_array">
-        <item>Custom View</item>
         <item>RecyclerView Fragment</item>
         <item>ListView Fragment</item>
         <item>ScrollView Fragment</item>

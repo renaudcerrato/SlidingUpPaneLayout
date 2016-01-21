@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.mypopsy.widget.SlidingUpPaneLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:supl_anchor="0.5"
+    app:supl_contentScrim="#a0000000"
+    app:supl_shadow="@drawable/shadow"
+    app:supl_initialState="hidden"
+    app:supl_visibleHeight="?attr/actionBarSize"
+    tools:context=".DemoActivity">
+
+    <!-- your main content -->
+    <include layout="@layout/layout_activity"/>
+
+    <!-- your sliding view -->
+    <include layout="@layout/layout_customview"/>
+
+</com.mypopsy.widget.SlidingUpPaneLayout>

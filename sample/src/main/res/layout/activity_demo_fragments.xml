@@ -11,8 +11,8 @@
     app:supl_shadow="@drawable/shadow"
     app:supl_initialState="hidden"
     app:supl_visibleHeight="?attr/actionBarSize"
-    tools:context=".MainActivity">
+    tools:context=".DemoFragmentActivity">
 
-    <include layout="@layout/activity_main_content"/>
+    <include layout="@layout/layout_activity"/>
 
 </com.mypopsy.widget.SlidingUpPaneLayout>
