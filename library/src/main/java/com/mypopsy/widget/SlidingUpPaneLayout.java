@@ -36,7 +36,7 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 public class SlidingUpPaneLayout extends ViewGroup {
 
     private static final String TAG = SlidingUpPaneLayout.class.getSimpleName();
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     @Retention(SOURCE)
     @IntDef({IntState.EXPANDED, IntState.ANCHORED, IntState.COLLAPSED, IntState.HIDDEN})
