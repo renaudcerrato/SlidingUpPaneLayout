@@ -29,7 +29,7 @@ public class DemoFragmentActivity extends BaseActivity implements AdapterFragmen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_demo_fragments);
+        setContentView(R.layout.activity_fragments);
 
         if(savedInstanceState != null)
             mLastSelection = savedInstanceState.getInt("selection");
