@@ -1015,7 +1015,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
         @Override
         public void writeToParcel(Parcel out, int flags) {
             super.writeToParcel(out, flags);
-            out.writeSerializable(state == null ? null : state.toString());
+            out.writeSerializable(state == null ? null : state);
         }
 
         public static final Parcelable.Creator<SavedState> CREATOR =
