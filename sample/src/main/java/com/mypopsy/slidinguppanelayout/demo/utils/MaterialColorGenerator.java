@@ -1,4 +1,4 @@
-package com.mypopsy.slidinguppanelayout.demo;
+package com.mypopsy.slidinguppanelayout.demo.utils;
 
 import java.util.Arrays;
 import java.util.List;

@@ -21,7 +21,7 @@ import static com.mypopsy.widget.SlidingUpPaneLayout.State.COLLAPSED;
 import static com.mypopsy.widget.SlidingUpPaneLayout.State.EXPANDED;
 import static com.mypopsy.widget.SlidingUpPaneLayout.State.HIDDEN;
 
-public class DemoFragmentActivity extends BaseActivity implements BaseItemFragment.OnItemClickListener {
+public class DemoFragmentActivity extends BaseActivity implements BaseFragment.OnItemClickListener {
 
     private Spinner mSpinner;
     private int mLastSelection;

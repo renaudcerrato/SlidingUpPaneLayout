@@ -16,4 +16,6 @@
 
     <include layout="@layout/layout_activity"/>
 
+    <!-- intentionally left empty -->
+
 </com.mypopsy.widget.SlidingUpPaneLayout>

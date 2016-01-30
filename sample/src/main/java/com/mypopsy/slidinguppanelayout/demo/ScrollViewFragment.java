@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ScrollView;
 
-public class ScrollViewFragment extends BaseItemFragment<ScrollView> {
+public class ScrollViewFragment extends BaseFragment<ScrollView> {
 
     @Nullable
     @Override

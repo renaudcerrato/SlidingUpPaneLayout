@@ -8,12 +8,13 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.mypopsy.slidinguppanelayout.demo.utils.MaterialColorGenerator;
 import com.mypopsy.slidinguppanelayout.extra.SlidingUpFragment;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-abstract public class BaseItemFragment<T extends ViewGroup> extends SlidingUpFragment {
+abstract public class BaseFragment<T extends ViewGroup> extends SlidingUpFragment {
 
     private static final int DEFAULT_ITEM_COUNT = 42;
 
