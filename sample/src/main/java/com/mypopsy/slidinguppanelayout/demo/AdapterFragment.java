@@ -14,7 +14,7 @@ import com.mypopsy.slidinguppanelayout.extra.SlidingUpFragment;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-abstract public class BaseFragment<T extends ViewGroup> extends SlidingUpFragment {
+abstract public class AdapterFragment<T extends ViewGroup> extends SlidingUpFragment {
 
     private static final int DEFAULT_ITEM_COUNT = 42;
 

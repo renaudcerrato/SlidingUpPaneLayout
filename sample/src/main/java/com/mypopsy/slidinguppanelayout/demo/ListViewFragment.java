@@ -9,7 +9,7 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 
-public class ListViewFragment extends BaseFragment<ListView> {
+public class ListViewFragment extends AdapterFragment<ListView> {
 
     @Nullable
     @Override

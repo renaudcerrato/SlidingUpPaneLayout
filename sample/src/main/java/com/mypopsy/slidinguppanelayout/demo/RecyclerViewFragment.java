@@ -7,7 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class RecyclerViewFragment extends BaseFragment<RecyclerView> {
+public class RecyclerViewFragment extends AdapterFragment<RecyclerView> {
 
     @Nullable
     @Override

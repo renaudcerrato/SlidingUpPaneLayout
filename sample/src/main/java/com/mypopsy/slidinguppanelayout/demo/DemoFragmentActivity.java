@@ -21,7 +21,7 @@ import static com.mypopsy.widget.SlidingUpPaneLayout.State.COLLAPSED;
 import static com.mypopsy.widget.SlidingUpPaneLayout.State.EXPANDED;
 import static com.mypopsy.widget.SlidingUpPaneLayout.State.HIDDEN;
 
-public class DemoFragmentActivity extends BaseActivity implements BaseFragment.OnItemClickListener {
+public class DemoFragmentActivity extends BaseActivity implements AdapterFragment.OnItemClickListener {
 
     private Spinner mSpinner;
     private int mLastSelection;
@@ -36,6 +36,7 @@ public class DemoFragmentActivity extends BaseActivity implements BaseFragment.O
 
         ActionBar actionbar = getSupportActionBar();
         if(actionbar == null) throw new IllegalStateException();
+
         actionbar.setCustomView(mSpinner = new AppCompatSpinner(actionbar.getThemedContext()));
         actionbar.setDisplayShowTitleEnabled(false);
         actionbar.setDisplayShowCustomEnabled(true);
@@ -58,7 +59,7 @@ public class DemoFragmentActivity extends BaseActivity implements BaseFragment.O
             }
         });
 
-        ensureSlideView(savedInstanceState == null ? ANCHORED : mSlidingUpPaneLayout.getState());
+        ensureFragment(savedInstanceState == null ? HIDDEN : mSlidingUpPaneLayout.getState());
     }
 
     public void addFragment(final SlidingUpFragment fragment, State state) {
@@ -69,23 +70,23 @@ public class DemoFragmentActivity extends BaseActivity implements BaseFragment.O
 
     @Override
     public void onExpandClick(View v) {
-        ensureSlideView(EXPANDED);
+        ensureFragment(EXPANDED);
         super.onExpandClick(v);
     }
 
     @Override
     public void onAnchorClick(View v) {
-        ensureSlideView(ANCHORED);
+        ensureFragment(ANCHORED);
         super.onAnchorClick(v);
     }
 
     @Override
     public void onCollapseClick(View v) {
-        ensureSlideView(COLLAPSED);
+        ensureFragment(COLLAPSED);
         super.onCollapseClick(v);
     }
 
-    private void ensureSlideView(State state) {
+    private void ensureFragment(State state) {
         if(mSlidingUpPaneLayout.getSlidingPanel() != null) return;
 
         switch (mSpinner.getSelectedItemPosition()) {

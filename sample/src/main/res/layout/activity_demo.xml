@@ -18,6 +18,6 @@
     <include layout="@layout/layout_activity"/>
 
     <!-- your sliding view -->
-    <include layout="@layout/layout_customview"/>
+    <include layout="@layout/layout_custom_view"/>
 
 </com.mypopsy.widget.SlidingUpPaneLayout>
