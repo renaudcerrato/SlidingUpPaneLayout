@@ -189,7 +189,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
         setContentScrim(a.getDrawable(R.styleable.SlidingUpPaneLayout_supl_contentScrim));
         setShadowDrawable(a.getDrawable(R.styleable.SlidingUpPaneLayout_supl_shadow));
         setInitialState(a.getInt(R.styleable.SlidingUpPaneLayout_supl_initialState, IntState.COLLAPSED));
-        mCollapseOnTouchOutside = !a.getBoolean(R.styleable.SlidingUpPaneLayout_supl_allowOutsideTouch, true);
+        mCollapseOnTouchOutside = a.getBoolean(R.styleable.SlidingUpPaneLayout_supl_collapseOnTouchOutside, false);
         mVisibleHeight = a.getDimensionPixelSize(R.styleable.SlidingUpPaneLayout_supl_visibleHeight, 0);
         a.recycle();
     }

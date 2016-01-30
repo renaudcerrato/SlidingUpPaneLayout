@@ -10,8 +10,8 @@
         <attr name="supl_anchor" format="float|reference"/>
         <!-- visible height when collapsed -->
         <attr name="supl_visibleHeight" format="dimension|reference"/>
-        <!-- if false, touch events outside the slideable panel will be consumed and the panel collapsed -->
-        <attr name="supl_allowOutsideTouch" format="boolean|reference"/>
+        <!-- if true, collapse the panel if touched outside (default to false) -->
+        <attr name="supl_collapseOnTouchOutside" format="boolean|reference"/>
         <!-- initial panel state -->
         <attr name="supl_initialState" format="enum|reference">
             <enum name="expanded" value="0"/>
