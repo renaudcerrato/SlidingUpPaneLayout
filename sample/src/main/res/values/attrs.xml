@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="BetterRecyclerView">
+        <attr name="item_margin" format="dimension|reference"/>
+        <attr name="item_marginLeft" format="dimension|reference"/>
+        <attr name="item_marginRight" format="dimension|reference"/>
+        <attr name="item_marginTop" format="dimension|reference"/>
+        <attr name="item_marginBottom" format="dimension|reference"/>
+        <attr name="hasFixedSize" format="boolean|reference"/>
+        <attr name="android:columnWidth"/>
+    </declare-styleable>
+
+    <declare-styleable name="AspectLockedImageView">
+        <attr name="aspectRatio" format="reference|float"/>
+    </declare-styleable>
+
+</resources>

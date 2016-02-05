@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.mypopsy.slidinguppanelayout.demo.widget.BetterRecyclerView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@android:id/list"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:spanCount="3"
+    app:item_margin="1dp"
+    app:hasFixedSize="true"
+    app:layoutManager="GridLayoutManager"
+    android:layout_margin="1dp"
+    android:background="?android:attr/windowBackground"/>

@@ -1,4 +1,4 @@
-package com.mypopsy.slidinguppanelayout.demo;
+package com.mypopsy.slidinguppanelayout.demo.ui;
 
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.mypopsy.slidinguppanelayout.demo.R;
 import com.mypopsy.slidinguppanelayout.demo.utils.MaterialColorGenerator;
 import com.mypopsy.slidinguppanelayout.extra.SlidingUpFragment;
 

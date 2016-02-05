@@ -1,4 +1,4 @@
-package com.mypopsy.slidinguppanelayout.demo;
+package com.mypopsy.slidinguppanelayout.demo.ui;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
+
+import com.mypopsy.slidinguppanelayout.demo.R;
 
 public class ListViewFragment extends AdapterFragment<ListView> {
 

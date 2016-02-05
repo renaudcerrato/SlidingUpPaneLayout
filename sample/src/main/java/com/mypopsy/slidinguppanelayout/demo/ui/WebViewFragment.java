@@ -1,4 +1,4 @@
-package com.mypopsy.slidinguppanelayout.demo;
+package com.mypopsy.slidinguppanelayout.demo.ui;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -15,21 +15,48 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.mypopsy.slidinguppanelayout.demo.R;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
 public class WebViewFragment extends Fragment {
+
+    private  static final String ARG_URL = "url";
 
     @Bind(R.id.webview) WebView mWebView;
     @Bind(R.id.toolbar) Toolbar mToolbar;
 
     private String mUrl;
 
+    public static WebViewFragment newInstance(String url) {
+        Bundle args = new Bundle();
+        args.putString(ARG_URL, url);
+        WebViewFragment fragment = new WebViewFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         return inflater.inflate(R.layout.fragment_webview, container, false);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        Bundle args = savedInstanceState;
+        if(args == null) args = getArguments();
+        if (args != null && args.containsKey(ARG_URL))
+            loadUrl(args.getString(ARG_URL));
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(ARG_URL, mWebView.getUrl());
     }
 
     @Override

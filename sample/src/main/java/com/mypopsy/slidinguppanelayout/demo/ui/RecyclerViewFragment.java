@@ -1,4 +1,4 @@
-package com.mypopsy.slidinguppanelayout.demo;
+package com.mypopsy.slidinguppanelayout.demo.ui;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -6,6 +6,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.mypopsy.slidinguppanelayout.demo.R;
 
 public class RecyclerViewFragment extends AdapterFragment<RecyclerView> {
 

@@ -12,7 +12,7 @@
     app:supl_initialState="hidden"
     app:supl_visibleHeight="?attr/actionBarSize"
     app:supl_collapseOnTouchOutside="true"
-    tools:context=".DemoFragmentActivity">
+    tools:context=".AdvancedFragmentDemoActivity">
 
     <include layout="@layout/layout_activity"/>
 

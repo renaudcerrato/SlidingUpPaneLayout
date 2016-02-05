@@ -13,6 +13,10 @@ import android.widget.ArrayAdapter;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 
+import com.mypopsy.slidinguppanelayout.demo.ui.AdapterFragment;
+import com.mypopsy.slidinguppanelayout.demo.ui.ListViewFragment;
+import com.mypopsy.slidinguppanelayout.demo.ui.RecyclerViewFragment;
+import com.mypopsy.slidinguppanelayout.demo.ui.ScrollViewFragment;
 import com.mypopsy.slidinguppanelayout.extra.SlidingUpFragment;
 import com.mypopsy.widget.SlidingUpPaneLayout.State;
 
@@ -21,7 +25,7 @@ import static com.mypopsy.widget.SlidingUpPaneLayout.State.COLLAPSED;
 import static com.mypopsy.widget.SlidingUpPaneLayout.State.EXPANDED;
 import static com.mypopsy.widget.SlidingUpPaneLayout.State.HIDDEN;
 
-public class DemoFragmentActivity extends BaseActivity implements AdapterFragment.OnItemClickListener {
+public class AdvancedFragmentDemoActivity extends BaseActivity implements AdapterFragment.OnItemClickListener {
 
     private Spinner mSpinner;
     private int mLastSelection;
