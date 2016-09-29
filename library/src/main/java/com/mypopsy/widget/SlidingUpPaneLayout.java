@@ -194,6 +194,10 @@ public class SlidingUpPaneLayout extends ViewGroup {
         a.recycle();
     }
 
+    public float getAnchorPoint() {
+        return mAnchorPoint;
+    }
+
     public void setAnchorPoint(float anchorPoint) {
         if(mAnchorPoint != anchorPoint) {
             mAnchorPoint = anchorPoint;
