@@ -39,6 +39,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
     private static final String TAG = SlidingUpPaneLayout.class.getSimpleName();
     private static final boolean DEBUG = false;
     private final GestureDetector mGestureDetector;
+    private boolean mIsGestureAllowed;
 
     @Retention(SOURCE)
     @IntDef({IntState.EXPANDED, IntState.ANCHORED, IntState.COLLAPSED, IntState.HIDDEN})
@@ -193,9 +194,14 @@ public class SlidingUpPaneLayout extends ViewGroup {
         setContentScrim(a.getDrawable(R.styleable.SlidingUpPaneLayout_supl_contentScrim));
         setShadowDrawable(a.getDrawable(R.styleable.SlidingUpPaneLayout_supl_shadow));
         setInitialState(a.getInt(R.styleable.SlidingUpPaneLayout_supl_initialState, IntState.COLLAPSED));
+        isGestureAllowed(a.getBoolean(R.styleable.SlidingUpPaneLayout_supl_allowGestures, false));
         mCollapseOnTouchOutside = a.getBoolean(R.styleable.SlidingUpPaneLayout_supl_collapseOnTouchOutside, false);
         mVisibleHeight = a.getDimensionPixelSize(R.styleable.SlidingUpPaneLayout_supl_visibleHeight, 0);
         a.recycle();
+    }
+
+    private void isGestureAllowed(boolean isGestureAllowed) {
+        mIsGestureAllowed = isGestureAllowed;
     }
 
     public float getAnchorPoint() {
@@ -361,7 +367,9 @@ public class SlidingUpPaneLayout extends ViewGroup {
 
         final int action = ev.getAction();
         mDragHelper.processTouchEvent(ev);
-        mGestureDetector.onTouchEvent(ev);
+
+        if (mIsGestureAllowed)
+            mGestureDetector.onTouchEvent(ev);
 
         final float x = ev.getX();
         final float y = ev.getY();
