@@ -1073,16 +1073,19 @@ public class SlidingUpPaneLayout extends ViewGroup {
 
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+
+
             try {
                 float deltaY = e2.getY() - e1.getY();
                 float deltaX = e2.getX() - e1.getX();
 
-                if (Math.abs(deltaX) <= Math.abs(deltaY)) {
-                    if (Math.abs(deltaY) > SLIDE_THRESHOLD) {
-                        if (deltaY <= 0) {
-                            // the user made a sliding up gesture
-                            return onSlideUp();
-                        }
+                if (Math.abs(deltaY) > SLIDE_THRESHOLD) {
+                    if (deltaY > 0) {
+                        // the user made a sliding down gesture
+                        return onSlideDown();
+                    } else {
+                        // the user made a sliding up gesture
+                        return onSlideUp();
                     }
                 }
             } catch (Exception exception) {
@@ -1092,9 +1095,22 @@ public class SlidingUpPaneLayout extends ViewGroup {
             return false;
         }
 
+        private boolean onSlideDown() {
+            if (getState() == State.EXPANDED || getState() == State.ANCHORED) {
+                setState(State.HIDDEN);
+                return true;
+            }
+
+            return false;
+        }
+
         private boolean onSlideUp() {
-            setState(State.EXPANDED);
-            return !isExpanded();
+            if (getState() != State.DRAGGING && getState() != State.EXPANDED) {
+                setState(State.EXPANDED);
+                return true;
+            }
+
+            return false;
         }
     }
 
