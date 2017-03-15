@@ -19,6 +19,9 @@
             <enum name="collapsed" value="2"/>
             <enum name="hidden" value="3"/>
         </attr>
+
+        <!-- allow gestures-->>
+        <attr name="supl_allowGestures" format="boolean|reference"/>
     </declare-styleable>
 
 </resources>

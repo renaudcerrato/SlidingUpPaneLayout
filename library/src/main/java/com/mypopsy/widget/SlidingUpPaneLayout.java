@@ -19,6 +19,7 @@ import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ViewDragHelper;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +38,8 @@ public class SlidingUpPaneLayout extends ViewGroup {
 
     private static final String TAG = SlidingUpPaneLayout.class.getSimpleName();
     private static final boolean DEBUG = false;
+    private final GestureDetector mGestureDetector;
+    private boolean mIsGestureAllowed;
 
     @Retention(SOURCE)
     @IntDef({IntState.EXPANDED, IntState.ANCHORED, IntState.COLLAPSED, IntState.HIDDEN})
@@ -179,6 +182,8 @@ public class SlidingUpPaneLayout extends ViewGroup {
         mDragHelper = ViewDragHelper.create(this, DEFAULT_DRAG_SENSITIVITY, new DragHelperCallbacks());
         mDragHelper.setMinVelocity(MIN_FLING_VELOCITY * density);
 
+        mGestureDetector = new GestureDetector(context, new GestureListener());
+
         applyXmlAttributes(attrs, defStyleAttr);
     }
 
@@ -189,9 +194,14 @@ public class SlidingUpPaneLayout extends ViewGroup {
         setContentScrim(a.getDrawable(R.styleable.SlidingUpPaneLayout_supl_contentScrim));
         setShadowDrawable(a.getDrawable(R.styleable.SlidingUpPaneLayout_supl_shadow));
         setInitialState(a.getInt(R.styleable.SlidingUpPaneLayout_supl_initialState, IntState.COLLAPSED));
+        isGestureAllowed(a.getBoolean(R.styleable.SlidingUpPaneLayout_supl_allowGestures, false));
         mCollapseOnTouchOutside = a.getBoolean(R.styleable.SlidingUpPaneLayout_supl_collapseOnTouchOutside, false);
         mVisibleHeight = a.getDimensionPixelSize(R.styleable.SlidingUpPaneLayout_supl_visibleHeight, 0);
         a.recycle();
+    }
+
+    private void isGestureAllowed(boolean isGestureAllowed) {
+        mIsGestureAllowed = isGestureAllowed;
     }
 
     public float getAnchorPoint() {
@@ -344,6 +354,10 @@ public class SlidingUpPaneLayout extends ViewGroup {
         return null;
     }
 
+    public void dragTo(int x, int y) {
+
+    }
+
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent ev) {
 
@@ -353,6 +367,9 @@ public class SlidingUpPaneLayout extends ViewGroup {
 
         final int action = ev.getAction();
         mDragHelper.processTouchEvent(ev);
+
+        if (mIsGestureAllowed)
+            mGestureDetector.onTouchEvent(ev);
 
         final float x = ev.getX();
         final float y = ev.getY();
@@ -370,7 +387,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
                     final float dy = y - mInitialMotionY;
                     final int slop = mDragHelper.getTouchSlop();
                     if ((dx * dx + dy * dy < slop * slop) &&
-                            !mDragHelper.isViewUnder(mSlideableView, (int) x, (int) y)) {
+                        !mDragHelper.isViewUnder(mSlideableView, (int) x, (int) y)) {
                         setState(State.COLLAPSED);
                         break;
                     }
@@ -404,8 +421,8 @@ public class SlidingUpPaneLayout extends ViewGroup {
                 mInitialMotionY = y;
 
                 if(mCollapseOnTouchOutside &&
-                        mSlideOffset > 0 &&
-                        !mDragHelper.isViewUnder(mSlideableView, (int) x, (int) y)) {
+                    mSlideOffset > 0 &&
+                    !mDragHelper.isViewUnder(mSlideableView, (int) x, (int) y)) {
                     mIsUnableToDrag = true;
                     return true;
                 }
@@ -420,9 +437,9 @@ public class SlidingUpPaneLayout extends ViewGroup {
                 final int slop = mDragHelper.getTouchSlop();
 
                 if ((ady > slop && adx > ady) ||
-                        (dy > 0 && mState == State.EXPANDED &&
-                                canScrollVertically(mSlideableView,
-                                        (int) mInitialMotionX, (int) mInitialMotionY, -1))) {
+                    (dy > 0 && mState == State.EXPANDED &&
+                        canScrollVertically(mSlideableView,
+                            (int) mInitialMotionX, (int) mInitialMotionY, -1))) {
                     mDragHelper.cancel();
                     mIsUnableToDrag = true;
                     return false;
@@ -472,8 +489,8 @@ public class SlidingUpPaneLayout extends ViewGroup {
         if(DEBUG) Log.d(TAG, "-----onMeasure()");
 
         final boolean measureMatchParentChildren =
-                MeasureSpec.getMode(widthMeasureSpec) != MeasureSpec.EXACTLY ||
-                        MeasureSpec.getMode(heightMeasureSpec) != MeasureSpec.EXACTLY;
+            MeasureSpec.getMode(widthMeasureSpec) != MeasureSpec.EXACTLY ||
+                MeasureSpec.getMode(heightMeasureSpec) != MeasureSpec.EXACTLY;
 
         mMatchParentChildren.clear();
 
@@ -488,9 +505,9 @@ public class SlidingUpPaneLayout extends ViewGroup {
                 measureChildWithMargins(child, widthMeasureSpec, 0, heightMeasureSpec, 0);
                 final MarginLayoutParams lp = (LayoutParams) child.getLayoutParams();
                 maxWidth = Math.max(maxWidth,
-                        child.getMeasuredWidth() + lp.leftMargin + lp.rightMargin);
+                    child.getMeasuredWidth() + lp.leftMargin + lp.rightMargin);
                 maxHeight = Math.max(maxHeight,
-                        child.getMeasuredHeight() + lp.topMargin + lp.bottomMargin);
+                    child.getMeasuredHeight() + lp.topMargin + lp.bottomMargin);
                 childState = combineMeasuredStates(childState, child.getMeasuredState());
                 if (measureMatchParentChildren) {
                     if (lp.width == LayoutParams.MATCH_PARENT || lp.height == LayoutParams.MATCH_PARENT) {
@@ -509,8 +526,8 @@ public class SlidingUpPaneLayout extends ViewGroup {
         maxWidth = Math.max(maxWidth, getSuggestedMinimumWidth());
 
         setMeasuredDimension(resolveSizeAndState(maxWidth, widthMeasureSpec, childState),
-                resolveSizeAndState(maxHeight, heightMeasureSpec,
-                        childState << MEASURED_HEIGHT_STATE_SHIFT));
+            resolveSizeAndState(maxHeight, heightMeasureSpec,
+                childState << MEASURED_HEIGHT_STATE_SHIFT));
 
         count = mMatchParentChildren.size();
 
@@ -522,29 +539,29 @@ public class SlidingUpPaneLayout extends ViewGroup {
                 final int childWidthMeasureSpec;
                 if (lp.width == LayoutParams.MATCH_PARENT) {
                     final int width = Math.max(0, getMeasuredWidth()
-                            - getPaddingLeft() - getPaddingRight()
-                            - lp.leftMargin - lp.rightMargin);
+                        - getPaddingLeft() - getPaddingRight()
+                        - lp.leftMargin - lp.rightMargin);
                     childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(
-                            width, MeasureSpec.EXACTLY);
+                        width, MeasureSpec.EXACTLY);
                 } else {
                     childWidthMeasureSpec = getChildMeasureSpec(widthMeasureSpec,
-                            getPaddingLeft() + getPaddingRight() +
-                                    lp.leftMargin + lp.rightMargin,
-                            lp.width);
+                        getPaddingLeft() + getPaddingRight() +
+                            lp.leftMargin + lp.rightMargin,
+                        lp.width);
                 }
 
                 final int childHeightMeasureSpec;
                 if (lp.height == LayoutParams.MATCH_PARENT) {
                     final int height = Math.max(0, getMeasuredHeight()
-                            - getPaddingTop() - getPaddingBottom()
-                            - lp.topMargin - lp.bottomMargin);
+                        - getPaddingTop() - getPaddingBottom()
+                        - lp.topMargin - lp.bottomMargin);
                     childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(
-                            height, MeasureSpec.EXACTLY);
+                        height, MeasureSpec.EXACTLY);
                 } else {
                     childHeightMeasureSpec = getChildMeasureSpec(heightMeasureSpec,
-                            getPaddingTop() + getPaddingBottom() +
-                                    lp.topMargin + lp.bottomMargin,
-                            lp.height);
+                        getPaddingTop() + getPaddingBottom() +
+                            lp.topMargin + lp.bottomMargin,
+                        lp.height);
                 }
 
                 child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
@@ -858,7 +875,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
         int screenX = mLocationOnScreen[0] + x;
         int screenY = mLocationOnScreen[1] + y;
         return screenX >= mTmp[0] && screenX < mTmp[0] + view.getWidth() &&
-                screenY >= mTmp[1] && screenY < mTmp[1] + view.getHeight();
+            screenY >= mTmp[1] && screenY < mTmp[1] + view.getHeight();
     }
 
     private void updateScrimAlpha() {
@@ -899,7 +916,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
         final int clampedChildBottom = Math.min(bottomBound, child.getBottom());
         final int vis;
         if (clampedChildLeft >= left && clampedChildTop >= top &&
-                clampedChildRight <= right && clampedChildBottom <= bottom) {
+            clampedChildRight <= right && clampedChildBottom <= bottom) {
             vis = INVISIBLE;
         } else {
             vis = VISIBLE;
@@ -1023,17 +1040,17 @@ public class SlidingUpPaneLayout extends ViewGroup {
         }
 
         public static final Parcelable.Creator<SavedState> CREATOR =
-                new Parcelable.Creator<SavedState>() {
-                    @Override
-                    public SavedState createFromParcel(Parcel in) {
-                        return new SavedState(in);
-                    }
+            new Parcelable.Creator<SavedState>() {
+                @Override
+                public SavedState createFromParcel(Parcel in) {
+                    return new SavedState(in);
+                }
 
-                    @Override
-                    public SavedState[] newArray(int size) {
-                        return new SavedState[size];
-                    }
-                };
+                @Override
+                public SavedState[] newArray(int size) {
+                    return new SavedState[size];
+                }
+            };
     }
 
     public static class LayoutParams extends ViewGroup.MarginLayoutParams {
@@ -1050,4 +1067,59 @@ public class SlidingUpPaneLayout extends ViewGroup {
             super(c, attrs);
         }
     }
+
+    private final class GestureListener extends GestureDetector.SimpleOnGestureListener {
+
+        private final String TAG = GestureListener.class.getSimpleName();
+
+        private static final int SLIDE_THRESHOLD = 100;
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+            return true;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+
+
+            try {
+                float deltaY = e2.getY() - e1.getY();
+                float deltaX = e2.getX() - e1.getX();
+
+                if (Math.abs(deltaY) > SLIDE_THRESHOLD) {
+                    if (deltaY > 0) {
+                        // the user made a sliding down gesture
+                        return onSlideDown();
+                    } else {
+                        // the user made a sliding up gesture
+                        return onSlideUp();
+                    }
+                }
+            } catch (Exception exception) {
+                Log.e(TAG, exception.getMessage());
+            }
+
+            return false;
+        }
+
+        private boolean onSlideDown() {
+            if (getState() == State.EXPANDED || getState() == State.ANCHORED) {
+                setState(State.HIDDEN);
+                return true;
+            }
+
+            return false;
+        }
+
+        private boolean onSlideUp() {
+            if (getState() != State.DRAGGING && getState() != State.EXPANDED) {
+                setState(State.EXPANDED);
+                return true;
+            }
+
+            return false;
+        }
+    }
+
 }
