@@ -134,6 +134,11 @@ public class SlidingUpPaneLayout extends ViewGroup {
     private boolean mIsUnableToDrag;
 
     /**
+     * How far in pixels the slideable panel may be translated in the expanded state
+     */
+    private int mOffset;
+
+    /**
      * Content scrim.
      */
     @Nullable
@@ -186,12 +191,17 @@ public class SlidingUpPaneLayout extends ViewGroup {
     private void applyXmlAttributes(AttributeSet attrs, int defStyleAttr) {
         TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.SlidingUpPaneLayout, defStyleAttr, 0);
         setAnchorPoint(a.getFloat(R.styleable.SlidingUpPaneLayout_supl_anchor, DEFAULT_ANCHOR_POINT));
+        setOffset(a.getDimensionPixelSize(R.styleable.SlidingUpPaneLayout_supl_offset, 0));
         setContentScrim(a.getDrawable(R.styleable.SlidingUpPaneLayout_supl_contentScrim));
         setShadowDrawable(a.getDrawable(R.styleable.SlidingUpPaneLayout_supl_shadow));
         setInitialState(a.getInt(R.styleable.SlidingUpPaneLayout_supl_initialState, IntState.COLLAPSED));
         mCollapseOnTouchOutside = a.getBoolean(R.styleable.SlidingUpPaneLayout_supl_collapseOnTouchOutside, false);
         mVisibleHeight = a.getDimensionPixelSize(R.styleable.SlidingUpPaneLayout_supl_visibleHeight, 0);
         a.recycle();
+    }
+
+    public void setOffset(int offset) {
+        mOffset = offset;
     }
 
     public float getAnchorPoint() {
@@ -553,7 +563,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
 
         if(getChildCount() == 2) {
             mSlideableView = getChildAt(1);
-            mSlideRange = mSlideableView.getMeasuredHeight() - mVisibleHeight;
+            mSlideRange = (mSlideableView.getMeasuredHeight() - mVisibleHeight) + mOffset;
         }else if(mSlideableView != null) {
             mSlideableView = null;
             mSlideRange = 0;
@@ -576,7 +586,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
             if (child.getVisibility() != GONE) {
                 final LayoutParams lp = (LayoutParams) child.getLayoutParams();
                 final int width = child.getMeasuredWidth();
-                final int height = child.getMeasuredHeight();
+                int height = child.getMeasuredHeight();
 
                 int childLeft = parentLeft + lp.leftMargin;
                 int childTop = parentTop + lp.topMargin;
@@ -587,6 +597,7 @@ public class SlidingUpPaneLayout extends ViewGroup {
                         if(!mShouldAnimatePendingState) mSlideOffset = computeSlideOffset(mState);
                     }
                     childTop += computePanelTopPosition(mSlideOffset);
+                    height += mOffset;
                 }
 
                 if(DEBUG) Log.d(TAG, "child.layout("+i+",["+childLeft+","+childTop+":"+width+"x"+height+")");
