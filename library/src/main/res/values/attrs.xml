@@ -2,6 +2,8 @@
 <resources>
 
     <declare-styleable name="SlidingUpPaneLayout">
+        <!-- How far in pixels the slideable panel may move -->
+        <attr name="supl_offset" format="dimension"/>
         <!-- color of the content scrim -->
         <attr name="supl_contentScrim" format="color|reference"/>
         <!-- shadow drawable above the sliding panel -->
